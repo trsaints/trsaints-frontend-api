@@ -1,7 +1,12 @@
 namespace trsaints_frontend_api.Models;
 
-public class Project(string name, string description, string url, string[] skills, string banner)
+public class Project(int id, string name, string description, string url, string[] skills, string banner)
 {
+    public int Id
+    {
+        get => id;
+        set => id = value;
+    }
     public string Name
     {
         get => name;
@@ -26,7 +31,7 @@ public class Project(string name, string description, string url, string[] skill
         set => url = value;
     }
 
-    public string[] Skills
+    public string[] Stack
     {
         get => skills;
         set => skills = value;
