@@ -1,0 +1,9 @@
+@trsaints_frontend_api_HostAddress = http://localhost:5030
+
+GET {{trsaints_frontend_api_HostAddress}}/projects/
+Accept: application/json
+
+###
+
+GET {{trsaints_frontend_api_HostAddress}}/skills/
+Accept: application/json
