@@ -1,21 +1,21 @@
 namespace trsaints_frontend_api.Models;
 
-public class Skill(int id, string name, string category)
+public class Skill()
 {
     public int Id
     {
-        get => id;
-        set => id = value;
+        get;
+        set;
     }
     public string Name
     {
-        get => name;
-        set => name = value;
+        get;
+        set;
     }
 
     public string Category
     {
-        get => category;
-        set => category = value;
+        get;
+        set;
     }
 }

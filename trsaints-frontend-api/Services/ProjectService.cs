@@ -4,8 +4,8 @@ namespace trsaints_frontend_api.Services;
 
 public static class ProjectService
 {
-    private static List<Project>? Projects { get; }
-    private static int nextId;
+    private static List<Project>? Projects { get; } = [];
+    private static int _nextId;
 
     public static List<Project>? GetAll() => Projects;
 
@@ -13,7 +13,7 @@ public static class ProjectService
     
     public static void Add(Project project)
     {
-        project.Id = nextId++;
+        project.Id = _nextId++;
         Projects?.Add(project);
     }
 
@@ -29,6 +29,8 @@ public static class ProjectService
 
     public static void Update(Project project)
     {
+        if (Projects is null) return;
+        
         var index = Projects.FindIndex(p => p.Id == project.Id);
 
         if (index is -1)
