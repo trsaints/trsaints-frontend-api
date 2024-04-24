@@ -1,7 +1,24 @@
-@trsaints_frontend_api_HostAddress = http://localhost:5030
+@trsaints_frontend_api_HostAddress = http://localhost:8080
 
 GET {{trsaints_frontend_api_HostAddress}}/projects/
 Accept: application/json
+
+###
+
+POST {{trsaints_frontend_api_HostAddress}}/projects/
+Content-Type: application/json
+
+{
+  "name": "Project Name",
+  "description": "Project Description",
+  "repoUrl": "https://example.com/",
+  "deployUrl": "https://example.com/",
+  "stack": [
+    "Stack 1",
+    "Stack 2"
+  ],    
+  "banner": "https://example.com/banner.jpg"
+}
 
 ###
 
