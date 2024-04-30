@@ -18,6 +18,9 @@ public class AppDbContext: DbContext
 
         builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
+        builder.Entity<Skill>().HasKey(s => s.Id);
+        builder.Entity<Skill>().Property(s => s.Name).HasMaxLength(100).IsRequired();
+        
         builder.Entity<Stack>().HasKey(s => s.Id);
         builder.Entity<Stack>().Property(s => s.Name).HasMaxLength(100).IsRequired();
         builder.Entity<Stack>().HasMany(s => s.Projects).WithOne(p => p.Stack).HasForeignKey(p => p.StackId);
