@@ -9,8 +9,9 @@ public class AppDbContext: DbContext
     {
     }
     
-    public DbSet<TechStack> Stacks { get; set; }
+    public DbSet<TechStack> TechStacks { get; set; }
     public DbSet<Project> Projects { get; set; }
+    public DbSet<Skill> Skills { get; set;  }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
