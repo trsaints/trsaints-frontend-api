@@ -24,8 +24,9 @@ namespace trsaints_frontend_api.Controllers
         public async Task<IActionResult> GetAll()
         {
             var projects = await _projectRepository.GetAllAsync();
-
-            return Ok(_mapper.Map<IEnumerable<ProjectDTO>>(projects));
+            var projectDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
+            
+            return Ok(projectDto);
         }
 
         [HttpGet("{id:int}")]
@@ -34,15 +35,13 @@ namespace trsaints_frontend_api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var project = await _projectRepository.GetByIdAsync(id);
+            var projectDto = _mapper.Map<ProjectDTO>(project);
             
-            if (project is null)
-                return NotFound();
-
-            return Ok(_mapper.Map<ProjectDTO>(project));
+            return Ok(projectDto);
         }
 
         [HttpGet]
-        [Route("get-projects-by-category/{categoryId:int}")]
+        [Route("get-projects-by-category/{stackId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetProjectsByStack(int stackId)
@@ -87,13 +86,9 @@ namespace trsaints_frontend_api.Controllers
 
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Remove(int id)
         {
             var project = await _projectRepository.GetByIdAsync(id);
-            
-            if (project is null)
-                return NotFound();
 
             await _projectRepository.RemoveAsync(project.Id);
 
@@ -103,13 +98,9 @@ namespace trsaints_frontend_api.Controllers
         [HttpGet]
         [Route("search/{projectName}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<ProjectDTO>>> Search(string projectName)
         {
             var projects = await _projectRepository.SearchAsync(p => p.Name.Contains(projectName));
-
-            if (projects is null)
-                return NotFound();
 
             return Ok(_mapper.Map<IEnumerable<ProjectDTO>>(projects));
         }
@@ -122,7 +113,7 @@ namespace trsaints_frontend_api.Controllers
         {
             var projects = _mapper.Map<List<Project>>(await _projectRepository.FindProjectWithStackAsync(criteria));
 
-            if (!projects.Any())
+            if (projects is null)
                 return NotFound();
 
             return Ok(_mapper.Map<IEnumerable<ProjectStackDTO>>(projects));

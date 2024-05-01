@@ -19,28 +19,19 @@ public class TechStackController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<TechStackDTO>>> Get()
+    public async Task<ActionResult<IEnumerable<TechStackDTO>>> GetAll()
     {
         var stacks = await _stackRepository.GetAllAsync();
-
-        if (stacks is null)
-            return NotFound();
-
         var stacksDto = _mapper.Map<IEnumerable<TechStackDTO>>(stacks);
+        
         return Ok(stacksDto);
     }
 
     [HttpGet("{id:int}", Name = "GetStack")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<TechStackDTO>> Get(int id)
+    public async Task<ActionResult<TechStackDTO>> GetById(int id)
     {
         var stack = await _stackRepository.GetByIdAsync(id);
-
-        if (stack is null)
-            return NotFound();
-
         var stackDto = _mapper.Map<TechStackDTO>(stack);
 
         return Ok(stackDto);
@@ -48,12 +39,8 @@ public class TechStackController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Post([FromBody] TechStackDTO techStackDto)
     {
-        if (techStackDto is null)
-            return BadRequest();
-
         var stack = _mapper.Map<TechStack>(techStackDto);
 
         await _stackRepository.AddAsync(stack);
@@ -68,10 +55,7 @@ public class TechStackController : ControllerBase
     {
         if (id != techStackDto.Id)
             return BadRequest();
-
-        if (techStackDto is null)
-            return BadRequest();
-
+        
         var stack = _mapper.Map<TechStack>(techStackDto);
         await _stackRepository.UpdateAsync(stack);
 
@@ -80,14 +64,9 @@ public class TechStackController : ControllerBase
 
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(int id)
     {
         var stack = await _stackRepository.GetByIdAsync(id);
-
-        if (stack is null)
-            return NotFound();
-
         await _stackRepository.RemoveAsync(id);
 
         return Ok(stack);
