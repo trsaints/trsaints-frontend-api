@@ -49,5 +49,5 @@ public class ProjectDTO
     public int StackId { get; set;}
     
     [JsonIgnore]
-    public Stack Stack { get; set;}
+    public TechStack TechStack { get; set;}
 }

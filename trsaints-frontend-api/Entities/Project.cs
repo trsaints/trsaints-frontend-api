@@ -10,5 +10,5 @@ public class Project: Entity
     public string Banner { get; set; }
     
     public int StackId { get; set; }
-    public Stack Stack { get; set; }
+    public TechStack TechStack { get; set; }
 }

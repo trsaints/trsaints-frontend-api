@@ -54,7 +54,7 @@ public class StackController : ControllerBase
         if (stackDto is null)
             return BadRequest();
 
-        var stack = _mapper.Map<Stack>(stackDto);
+        var stack = _mapper.Map<TechStack>(stackDto);
 
         await _stackRepository.AddAsync(stack);
 
@@ -72,7 +72,7 @@ public class StackController : ControllerBase
         if (stackDto is null)
             return BadRequest();
 
-        var stack = _mapper.Map<Stack>(stackDto);
+        var stack = _mapper.Map<TechStack>(stackDto);
         await _stackRepository.UpdateAsync(stack);
 
         return Ok(stackDto);

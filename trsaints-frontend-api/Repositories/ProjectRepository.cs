@@ -17,9 +17,9 @@ public class ProjectRepository: Repository<Project>, IProjectRepository
     public async Task<IEnumerable<Project>> FindProjectWithStackAsync(string criteria)
     {
         return await _db.Projects.AsNoTracking()
-            .Include(p => p.Stack)
+            .Include(p => p.TechStack)
             .Where(p => p.Name.Contains(criteria) ||
                         p.Description.Contains(criteria) ||
-                        p.Stack.Name.Contains(criteria)).ToListAsync();
+                        p.TechStack.Name.Contains(criteria)).ToListAsync();
     }
 }

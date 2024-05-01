@@ -9,7 +9,7 @@ public class AppDbContext: DbContext
     {
     }
     
-    public DbSet<Stack> Stacks { get; set; }
+    public DbSet<TechStack> Stacks { get; set; }
     public DbSet<Project> Projects { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -21,9 +21,9 @@ public class AppDbContext: DbContext
         builder.Entity<Skill>().HasKey(s => s.Id);
         builder.Entity<Skill>().Property(s => s.Name).HasMaxLength(100).IsRequired();
         
-        builder.Entity<Stack>().HasKey(s => s.Id);
-        builder.Entity<Stack>().Property(s => s.Name).HasMaxLength(100).IsRequired();
-        builder.Entity<Stack>().HasMany(s => s.Projects).WithOne(p => p.Stack).HasForeignKey(p => p.StackId);
+        builder.Entity<TechStack>().HasKey(s => s.Id);
+        builder.Entity<TechStack>().Property(s => s.Name).HasMaxLength(100).IsRequired();
+        builder.Entity<TechStack>().HasMany(s => s.Projects).WithOne(p => p.TechStack).HasForeignKey(p => p.StackId);
         
         builder.Entity<Project>().HasKey(p => p.Id);
         builder.Entity<Project>().Property(p => p.Name).HasMaxLength(100).IsRequired();

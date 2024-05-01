@@ -2,16 +2,16 @@ using trsaints_frontend_api.Validation;
 
 namespace trsaints_frontend_api.Entities;
 
-public sealed class Stack: Entity
+public sealed class TechStack: Entity
 {
     public string? Name { get; private set; }
 
-    public Stack(string name)
+    public TechStack(string name)
     {
         ValidateDomain(name);
     }
 
-    public Stack(int id, string name)
+    public TechStack(int id, string name)
     {
         DomainExceptionValidation.When(id < 0, "Invalid Id value");
         Id = id;
