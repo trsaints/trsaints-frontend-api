@@ -6,5 +6,5 @@ namespace trsaints_frontend_api.Repositories;
 
 public class SkillRepository: Repository<Skill>, ISkillRepository
 {
-    protected SkillRepository(AppDbContext db) : base(db) { }
+    public SkillRepository(AppDbContext db) : base(db) { }
 }

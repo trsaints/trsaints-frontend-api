@@ -6,5 +6,5 @@ namespace trsaints_frontend_api.Repositories;
 
 public class TechStackRepository: Repository<TechStack>, ITechStackRepository   
 {
-    protected TechStackRepository(AppDbContext db) : base(db) { }
+    public TechStackRepository(AppDbContext db) : base(db) { }
 }
