@@ -8,12 +8,12 @@ namespace trsaints_frontend_api.Controllers;
 
 public class TechStackController : ControllerBase
 {
-    private readonly IStackRepository _stackRepository;
+    private readonly ITechStackRepository _techStackRepository;
     private readonly IMapper _mapper;
 
-    public TechStackController(IStackRepository repository, IMapper mapper)
+    public TechStackController(ITechStackRepository repository, IMapper mapper)
     {
-        _stackRepository = repository;
+        _techStackRepository = repository;
         _mapper = mapper;
     }
 
@@ -21,7 +21,7 @@ public class TechStackController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<TechStackDTO>>> GetAll()
     {
-        var stacks = await _stackRepository.GetAllAsync();
+        var stacks = await _techStackRepository.GetAllAsync();
         var stacksDto = _mapper.Map<IEnumerable<TechStackDTO>>(stacks);
         
         return Ok(stacksDto);
@@ -31,7 +31,7 @@ public class TechStackController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<TechStackDTO>> GetById(int id)
     {
-        var stack = await _stackRepository.GetByIdAsync(id);
+        var stack = await _techStackRepository.GetByIdAsync(id);
         var stackDto = _mapper.Map<TechStackDTO>(stack);
 
         return Ok(stackDto);
@@ -43,7 +43,7 @@ public class TechStackController : ControllerBase
     {
         var stack = _mapper.Map<TechStack>(techStackDto);
 
-        await _stackRepository.AddAsync(stack);
+        await _techStackRepository.AddAsync(stack);
 
         return new CreatedAtRouteResult("GetStack", new { id = techStackDto.Id }, techStackDto);
     }
@@ -57,7 +57,7 @@ public class TechStackController : ControllerBase
             return BadRequest();
         
         var stack = _mapper.Map<TechStack>(techStackDto);
-        await _stackRepository.UpdateAsync(stack);
+        await _techStackRepository.UpdateAsync(stack);
 
         return Ok(techStackDto);
     }
@@ -66,8 +66,8 @@ public class TechStackController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult> Delete(int id)
     {
-        var stack = await _stackRepository.GetByIdAsync(id);
-        await _stackRepository.RemoveAsync(id);
+        var stack = await _techStackRepository.GetByIdAsync(id);
+        await _techStackRepository.RemoveAsync(id);
 
         return Ok(stack);
     }

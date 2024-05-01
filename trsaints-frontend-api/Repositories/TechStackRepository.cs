@@ -4,7 +4,7 @@ using trsaints_frontend_api.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Repositories;
 
-public class StackRepository: Repository<TechStack>, IStackRepository   
+public class TechStackRepository: Repository<TechStack>, ITechStackRepository   
 {
-    protected StackRepository(AppDbContext db) : base(db) { }
+    protected TechStackRepository(AppDbContext db) : base(db) { }
 }
