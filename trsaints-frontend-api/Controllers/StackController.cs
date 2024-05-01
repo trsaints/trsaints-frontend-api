@@ -20,28 +20,28 @@ public class StackController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<StackDTO>>> Get()
+    public async Task<ActionResult<IEnumerable<TechStackDTO>>> Get()
     {
         var stacks = await _stackRepository.GetAllAsync();
 
         if (stacks is null)
             return NotFound();
 
-        var stacksDto = _mapper.Map<IEnumerable<StackDTO>>(stacks);
+        var stacksDto = _mapper.Map<IEnumerable<TechStackDTO>>(stacks);
         return Ok(stacksDto);
     }
 
     [HttpGet("{id:int}", Name = "GetStack")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<StackDTO>> Get(int id)
+    public async Task<ActionResult<TechStackDTO>> Get(int id)
     {
         var stack = await _stackRepository.GetByIdAsync(id);
 
         if (stack is null)
             return NotFound();
 
-        var stackDto = _mapper.Map<StackDTO>(stack);
+        var stackDto = _mapper.Map<TechStackDTO>(stack);
 
         return Ok(stackDto);
     }
@@ -49,33 +49,33 @@ public class StackController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> Post([FromBody] StackDTO stackDto)
+    public async Task<ActionResult> Post([FromBody] TechStackDTO techStackDto)
     {
-        if (stackDto is null)
+        if (techStackDto is null)
             return BadRequest();
 
-        var stack = _mapper.Map<TechStack>(stackDto);
+        var stack = _mapper.Map<TechStack>(techStackDto);
 
         await _stackRepository.AddAsync(stack);
 
-        return new CreatedAtRouteResult("GetStack", new { id = stackDto.Id }, stackDto);
+        return new CreatedAtRouteResult("GetStack", new { id = techStackDto.Id }, techStackDto);
     }
 
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> Put(int id, [FromBody] StackDTO stackDto)
+    public async Task<ActionResult> Put(int id, [FromBody] TechStackDTO techStackDto)
     {
-        if (id != stackDto.Id)
+        if (id != techStackDto.Id)
             return BadRequest();
 
-        if (stackDto is null)
+        if (techStackDto is null)
             return BadRequest();
 
-        var stack = _mapper.Map<TechStack>(stackDto);
+        var stack = _mapper.Map<TechStack>(techStackDto);
         await _stackRepository.UpdateAsync(stack);
 
-        return Ok(stackDto);
+        return Ok(techStackDto);
     }
 
     [HttpDelete("{id:int}")]

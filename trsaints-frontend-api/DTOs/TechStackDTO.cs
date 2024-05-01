@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace trsaints_frontend_api.DTOs;
 
-public class StackDTO
+public class TechStackDTO
 {
     public int Id { get; set; }
     

@@ -10,7 +10,7 @@ public class DomainDTOProfile: Profile
     {
         CreateMap<Skill, SkillDTO>().ReverseMap();
         CreateMap<Project, ProjectDTO>().ReverseMap();
-        CreateMap<TechStack, StackDTO>().ReverseMap();
+        CreateMap<TechStack, TechStackDTO>().ReverseMap();
 
         CreateMap<Project, ProjectStackDTO>()
             .ForMember(dto => dto.StackName, opt => opt.MapFrom(src => src.TechStack.Name));
