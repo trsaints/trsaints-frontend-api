@@ -6,12 +6,12 @@ using trsaints_frontend_api.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Controllers;
 
-public class StackController : ControllerBase
+public class TechStackController : ControllerBase
 {
     private readonly IStackRepository _stackRepository;
     private readonly IMapper _mapper;
 
-    public StackController(IStackRepository repository, IMapper mapper)
+    public TechStackController(IStackRepository repository, IMapper mapper)
     {
         _stackRepository = repository;
         _mapper = mapper;
