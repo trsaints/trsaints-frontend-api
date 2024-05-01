@@ -6,6 +6,8 @@ using trsaints_frontend_api.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Controllers;
 
+[Route("api/[controller]")]
+[ApiController]
 public class TechStackController : ControllerBase
 {
     private readonly ITechStackRepository _techStackRepository;
