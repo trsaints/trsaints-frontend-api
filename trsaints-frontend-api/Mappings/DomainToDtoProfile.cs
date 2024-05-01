@@ -4,9 +4,9 @@ using trsaints_frontend_api.Entities;
 
 namespace trsaints_frontend_api.Mappings;
 
-public class DomainDTOProfile: Profile
+public class DomainToDtoProfile: Profile
 {   
-    public DomainDTOProfile()
+    public DomainToDtoProfile()
     {
         CreateMap<Skill, SkillDTO>().ReverseMap();
         CreateMap<Project, ProjectDTO>().ReverseMap();
