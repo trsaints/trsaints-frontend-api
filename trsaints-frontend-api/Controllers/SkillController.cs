@@ -1,60 +1,93 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using trsaints_frontend_api.Models;
-using trsaints_frontend_api.Services;
+using trsaints_frontend_api.DTOs;
+using trsaints_frontend_api.Entities;
+using trsaints_frontend_api.Repositories;
 
 namespace trsaints_frontend_api.Controllers;
 
+[Route("api/[controller]")]
 [ApiController]
-[Route("[controller]")]
 public class SkillController: ControllerBase
 {
+    private readonly SkillRepository _skillRepository;
+    private readonly IMapper _mapper;
+
+    public SkillController(SkillRepository repository, IMapper mapper)
+    {
+        _skillRepository = repository;
+        _mapper = mapper;
+    }
+    
     [HttpGet]
-    public ActionResult<List<Skill>> GetAll() => SkillService.GetAll() ?? throw new InvalidOperationException();
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> Get()
+    {
+        var skills = await _skillRepository.GetAllAsync();
+        var skillsDto = _mapper.Map<SkillDTO>(skills);
+
+        return Ok(skillsDto);
+    }
 
     [HttpGet("{id:int}")]
-    public ActionResult<Skill> Get(int id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetById(int id)
     {
-        var skill = SkillService.Get(id);
-
-        if (skill is null)
-            return NotFound();
-
-        return skill;
+        var skill = await _skillRepository.GetByIdAsync(id);
+        var skillDto = _mapper.Map<SkillDTO>(skill);
+        
+        return Ok(skillDto);
     }
 
     [HttpPost]
-    public IActionResult Create(Skill skill)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    
+    public async Task<IActionResult> Add(SkillDTO skillDto)
     {
-        SkillService.Add(skill);
-        return CreatedAtAction(nameof(Get), new { id = skill.Id }, skill);
+        if (!ModelState.IsValid)
+            return BadRequest();
+
+        var skill = _mapper.Map<Skill>(skillDto);
+        await _skillRepository.AddAsync(skill);
+
+        return Ok(_mapper.Map<SkillDTO>(skill));
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult Update(int id, Skill skill)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Update(int id, SkillDTO skillDto)
     {
-        if (id != skill.Id)
+        if (id != skillDto.Id)
+            return BadRequest();
+        
+        if (!ModelState.IsValid)
             return BadRequest();
 
-        var currentSkill = SkillService.Get(id);
+        await _skillRepository.UpdateAsync(_mapper.Map<Skill>(skillDto));
 
-        if (currentSkill is null)
-            return NotFound();
-        
-        SkillService.Update(skill);
-
-        return NoContent();
+        return Ok(skillDto);
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> Remove(int id)
     {
-        var skill = SkillService.Get(id);
-
-        if (skill is null)
-            return NotFound();
+        var skill = await _skillRepository.GetByIdAsync(id);
+        await _skillRepository.RemoveAsync(skill.Id);
         
-        SkillService.Delete(id);
-
-        return NoContent();
+        return Ok();
+    }
+    
+    [HttpGet]
+    [Route("search/{skillName}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<SkillDTO>>> Search(string skillName)
+    {
+        var skills = await _skillRepository.SearchAsync(s => s.Name.Contains(skillName));
+        var skillsDto = _mapper.Map<IEnumerable<SkillDTO>>(skills);
+        
+        return Ok(skillsDto);
     }
 }
