@@ -14,10 +14,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?.Replace("{Host}", Environment.GetEnvironmentVariable("POSTGRES_HOST"))
-    .Replace("{Database}", Environment.GetEnvironmentVariable("POSTGRES_DB"))
-    .Replace("{User}", Environment.GetEnvironmentVariable("POSTGRES_USER"))
-    .Replace("{Password}", Environment.GetEnvironmentVariable("POSTGRES_PASSWORD"));
+    ?.Replace("{Host}", builder.Configuration.GetValue<string>("POSTGRES_HOST"))
+    .Replace("{Port}", builder.Configuration.GetValue<string>("POSTGRES_PORT"))
+    .Replace("{Database}", builder.Configuration.GetValue<string>("POSTGRES_DB"))
+    .Replace("{User}", builder.Configuration.GetValue<string>("POSTGRES_USER"))
+    .Replace("{Password}", builder.Configuration.GetValue<string>("POSTGRES_PASSWORD"));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString, b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
