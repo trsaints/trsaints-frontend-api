@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using trsaints_frontend_api.DTOs;
 using trsaints_frontend_api.Entities;
 using trsaints_frontend_api.Repositories;
+using trsaints_frontend_api.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Controllers;
 
@@ -10,10 +11,10 @@ namespace trsaints_frontend_api.Controllers;
 [ApiController]
 public class SkillController: ControllerBase
 {
-    private readonly SkillRepository _skillRepository;
+    private readonly ISkillRepository _skillRepository;
     private readonly IMapper _mapper;
 
-    public SkillController(SkillRepository repository, IMapper mapper)
+    public SkillController(ISkillRepository repository, IMapper mapper)
     {
         _skillRepository = repository;
         _mapper = mapper;
@@ -24,7 +25,7 @@ public class SkillController: ControllerBase
     public async Task<IActionResult> Get()
     {
         var skills = await _skillRepository.GetAllAsync();
-        var skillsDto = _mapper.Map<SkillDTO>(skills);
+        var skillsDto = _mapper.Map<IEnumerable<SkillDTO>>(skills);
 
         return Ok(skillsDto);
     }

@@ -41,7 +41,7 @@ public class ProjectController: ControllerBase
     }
 
     [HttpGet]
-    [Route("get-projects-by-category/{stackId:int}")]
+    [Route("get-projects-by-stack/{stackId:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProjectsByStack(int stackId)
@@ -106,7 +106,7 @@ public class ProjectController: ControllerBase
     }
 
     [HttpGet]
-    [Route("search-project-with-category/{criteria}")]
+    [Route("search-project-with-stack/{criteria}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<ProjectDTO>>> SearchProjectWithStack(string criteria)
