@@ -1,6 +1,6 @@
 namespace trsaints_frontend_api.Entities;
 
-public class Skill(): Entity
+public class Skill: Entity
 {
     public string Name { get; set; }
 
