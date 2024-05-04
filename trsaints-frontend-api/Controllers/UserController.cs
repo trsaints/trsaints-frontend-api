@@ -9,6 +9,8 @@ using trsaints_frontend_api.Entities;
 
 namespace trsaints_frontend_api.Controllers;
 
+[Route("api/[controller]")]
+[ApiController]
 public class UserController: ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
