@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using trsaints_frontend_api.DTOs;
 using trsaints_frontend_api.Entities;
@@ -8,6 +9,7 @@ using trsaints_frontend_api.Repositories.Interfaces;
 namespace trsaints_frontend_api.Controllers;
 
 [Route("api/[controller]")]
+[Authorize(AuthenticationSchemes = "Bearer")]
 [ApiController]
 public class SkillController: ControllerBase
 {
