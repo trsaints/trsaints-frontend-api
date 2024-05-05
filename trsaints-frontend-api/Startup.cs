@@ -2,6 +2,20 @@ namespace trsaints_frontend_api;
 
 public static class Startup
 {
+   public static void AddCors(WebApplicationBuilder builder)
+   {
+      builder.Services.AddCors(options =>
+      {
+         options.AddPolicy(name: "basePolicy",
+            policy =>
+            {
+               policy.WithOrigins("https://www.trsantos.tech/", "https://localhost:8080")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+            });
+      });
+   }
+   
    public static string? GetFormattedConnectionString(WebApplicationBuilder builder)
    {
       var formattedConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")

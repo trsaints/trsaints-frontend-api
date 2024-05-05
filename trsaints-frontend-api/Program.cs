@@ -14,16 +14,7 @@ using trsaints_frontend_api.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: "basePolicy",
-        policy =>
-        {
-            policy.WithOrigins("https://www.trsantos.tech/", "https://localhost:8080")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
-});
+Startup.AddCors(builder);
 
 // Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
