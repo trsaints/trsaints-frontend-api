@@ -4,7 +4,6 @@ using trsaints_frontend_api.Mappings;
 using trsaints_frontend_api.Repositories;
 using trsaints_frontend_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -15,9 +14,7 @@ using trsaints_frontend_api.Entities;
 var builder = WebApplication.CreateBuilder(args);
 
 Startup.AddCors(builder);
-
-// Add services to the container.
-builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+Startup.AddControllers(builder);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

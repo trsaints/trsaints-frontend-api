@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace trsaints_frontend_api;
 
 public static class Startup
@@ -14,6 +16,12 @@ public static class Startup
                   .AllowAnyMethod();
             });
       });
+   }
+
+   public static void AddControllers(WebApplicationBuilder builder)
+   {
+      builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
    }
    
    public static string? GetFormattedConnectionString(WebApplicationBuilder builder)
