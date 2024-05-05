@@ -17,38 +17,8 @@ Startup.AddCors(builder);
 Startup.AddControllers(builder);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", info: new OpenApiInfo
-    {
-        Title = "TRSaints API",
-        Version = "v1"
-    });
-    
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-    });
-    
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
+
+Startup.AddSwagger(builder);
 
 var connectionString = Startup.GetFormattedConnectionString(builder);
 
