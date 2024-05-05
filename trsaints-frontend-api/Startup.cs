@@ -1,10 +1,12 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using trsaints_frontend_api.Context;
+using trsaints_frontend_api.Entities;
 using trsaints_frontend_api.Repositories;
 using trsaints_frontend_api.Repositories.Interfaces;
 
@@ -112,6 +114,12 @@ public static class Startup
                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"].Replace("{AuthKey}", builder.Configuration.GetValue<string>("JWT_AUTH_KEY"))))
          };
       });
+   }
 
+   public static void AddIdentity(WebApplicationBuilder builder)
+   {
+      builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+         .AddEntityFrameworkStores<AppDbContext>()
+         .AddDefaultTokenProviders();
    }
 }
