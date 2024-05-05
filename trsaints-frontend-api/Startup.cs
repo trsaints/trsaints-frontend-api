@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using trsaints_frontend_api.Context;
+using trsaints_frontend_api.Repositories;
+using trsaints_frontend_api.Repositories.Interfaces;
 
 namespace trsaints_frontend_api;
 
@@ -82,5 +84,12 @@ public static class Startup
 
       builder.Services.AddDbContext<AppDbContext>(options =>
          options.UseNpgsql(connectionString, b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+   }
+
+   public static void AddScopes(WebApplicationBuilder builder)
+   {
+      builder.Services.AddScoped<ITechStackRepository, TechStackRepository>();
+      builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+      builder.Services.AddScoped<ISkillRepository, SkillRepository>();
    }
 }

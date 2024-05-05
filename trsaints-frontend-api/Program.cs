@@ -1,13 +1,9 @@
 using System.Text;
 using trsaints_frontend_api.Context;
 using trsaints_frontend_api.Mappings;
-using trsaints_frontend_api.Repositories;
-using trsaints_frontend_api.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using trsaints_frontend_api;
 using trsaints_frontend_api.Entities;
 
@@ -20,10 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 Startup.AddSwagger(builder);
 Startup.AddDbContext(builder);
-
-builder.Services.AddScoped<ITechStackRepository, TechStackRepository>();
-builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
-builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+Startup.AddScopes(builder);
 
 builder.Services.AddAutoMapper(typeof(DomainToDtoProfile).Assembly);
 
