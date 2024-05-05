@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using trsaints_frontend_api.Context;
 
 namespace trsaints_frontend_api;
 
@@ -62,7 +64,7 @@ public static class Startup
 
    }
    
-   public static string? GetFormattedConnectionString(WebApplicationBuilder builder)
+   private static string? GetFormattedConnectionString(WebApplicationBuilder builder)
    {
       var formattedConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
          ?.Replace("{Host}", builder.Configuration.GetValue<string>("POSTGRES_HOST"))
@@ -72,5 +74,13 @@ public static class Startup
          .Replace("{Password}", builder.Configuration.GetValue<string>("POSTGRES_PASSWORD"));
 
       return formattedConnectionString;
-   } 
+   }
+
+   public static void AddDbContext(WebApplicationBuilder builder)
+   {
+      var connectionString = GetFormattedConnectionString(builder);
+
+      builder.Services.AddDbContext<AppDbContext>(options =>
+         options.UseNpgsql(connectionString, b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+   }
 }

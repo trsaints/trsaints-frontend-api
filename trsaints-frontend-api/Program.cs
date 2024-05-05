@@ -19,11 +19,7 @@ Startup.AddControllers(builder);
 builder.Services.AddEndpointsApiExplorer();
 
 Startup.AddSwagger(builder);
-
-var connectionString = Startup.GetFormattedConnectionString(builder);
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString, b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+Startup.AddDbContext(builder);
 
 builder.Services.AddScoped<ITechStackRepository, TechStackRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
