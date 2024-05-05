@@ -24,7 +24,7 @@ public class SkillController: ControllerBase
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> GetAll()
     {
         var skills = await _skillRepository.GetAllAsync();
         var skillsDto = _mapper.Map<IEnumerable<SkillDTO>>(skills);
