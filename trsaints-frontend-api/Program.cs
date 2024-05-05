@@ -1,9 +1,6 @@
-using System.Text;
 using trsaints_frontend_api.Context;
 using trsaints_frontend_api.Mappings;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using trsaints_frontend_api;
 using trsaints_frontend_api.Entities;
 
@@ -20,20 +17,7 @@ Startup.AddScopes(builder);
 
 builder.Services.AddAutoMapper(typeof(DomainToDtoProfile).Assembly);
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"].Replace("{AuthKey}", builder.Configuration.GetValue<string>("JWT_AUTH_KEY"))))
-    };
-});
+Startup.AddAuthentication(builder);
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()

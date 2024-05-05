@@ -1,5 +1,8 @@
+using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using trsaints_frontend_api.Context;
 using trsaints_frontend_api.Repositories;
@@ -91,5 +94,24 @@ public static class Startup
       builder.Services.AddScoped<ITechStackRepository, TechStackRepository>();
       builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
       builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+   }
+
+   public static void AddAuthentication(WebApplicationBuilder builder)
+   {
+      builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+      {
+         options.TokenValidationParameters = new TokenValidationParameters
+         {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+               Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"].Replace("{AuthKey}", builder.Configuration.GetValue<string>("JWT_AUTH_KEY"))))
+         };
+      });
+
    }
 }
