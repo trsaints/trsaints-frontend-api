@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using trsaints_frontend_api;
 using trsaints_frontend_api.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,12 +62,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?.Replace("{Host}", builder.Configuration.GetValue<string>("POSTGRES_HOST"))
-    .Replace("{Port}", builder.Configuration.GetValue<string>("POSTGRES_PORT"))
-    .Replace("{Database}", builder.Configuration.GetValue<string>("POSTGRES_DB"))
-    .Replace("{User}", builder.Configuration.GetValue<string>("POSTGRES_USER"))
-    .Replace("{Password}", builder.Configuration.GetValue<string>("POSTGRES_PASSWORD"));
+var connectionString = Startup.GetFormattedConnectionString(builder);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString, b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
