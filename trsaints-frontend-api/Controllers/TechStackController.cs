@@ -43,7 +43,7 @@ public class TechStackController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult> Post([FromBody] TechStackDTO techStackDto)
+    public async Task<ActionResult> Add([FromBody] TechStackDTO techStackDto)
     {
         var stack = _mapper.Map<TechStack>(techStackDto);
 
@@ -55,7 +55,7 @@ public class TechStackController : ControllerBase
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> Put(int id, [FromBody] TechStackDTO techStackDto)
+    public async Task<ActionResult> Update(int id, [FromBody] TechStackDTO techStackDto)
     {
         if (id != techStackDto.Id)
             return BadRequest();
@@ -68,7 +68,7 @@ public class TechStackController : ControllerBase
 
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult> Delete(int id)
+    public async Task<ActionResult> Remove(int id)
     {
         var stack = await _techStackRepository.GetByIdAsync(id);
         await _techStackRepository.RemoveAsync(id);

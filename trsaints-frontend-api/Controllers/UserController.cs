@@ -26,7 +26,7 @@ public class UserController: ControllerBase
     }
 
     [HttpPost("Register")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateUser([FromBody] User model)
@@ -37,10 +37,11 @@ public class UserController: ControllerBase
         if (result.Succeeded)
             return Ok(model);
 
-        return BadRequest();
+        return BadRequest(ModelState);
     }
 
     [HttpPost("Login")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserToken>> Login([FromBody] User userInfo)
     {
