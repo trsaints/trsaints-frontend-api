@@ -108,8 +108,8 @@ public static class Startup
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = builder.Configuration["Jwt:Issuer"].Replace("{JwtIssuer}", builder.Configuration.GetValue<string>("JWT_ISSUER")),
+            ValidAudience = builder.Configuration["Jwt:Audience"].Replace("{JwtAudience}", builder.Configuration.GetValue<string>("JWT_AUDIENCE")),
             IssuerSigningKey = new SymmetricSecurityKey(
                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"].Replace("{AuthKey}", builder.Configuration.GetValue<string>("JWT_AUTH_KEY"))))
          };
