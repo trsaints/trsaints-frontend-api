@@ -1,12 +1,18 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 
+ARG JWT_AUTH_KEY
+ARG JWT_ISSUER
+ARG JWT_AUDIENCE
 ARG POSTGRES_HOST
 ARG POSTGRES_PORT
 ARG POSTGRES_DB
 ARG POSTGRES_USER
 ARG POSTGRES_PASSWORD
 
+ENV JWT_AUTH_KEY=$JWT_AUTH_KEY
+ENV JWT_ISSUER=$JWT_ISSUER
+ENV JWT_AUDIENCE=$JWT_AUDIENCE
 ENV POSTGRES_HOST=$POSTGRES_HOST
 ENV POSTGRES_PORT=$POSTGRES_PORT
 ENV POSTGRES_DB=$POSTGRES_DB
@@ -35,5 +41,6 @@ RUN dotnet publish "trsaints-frontend-api.csproj" -c $BUILD_CONFIGURATION -o /ap
 
 FROM base AS final
 WORKDIR /app
+RUN rm -f /home/app/.microsoft/usersecrets/94a07a34-61c2-4d4b-a62d-b09347301694/secrets.json
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "trsaints-frontend-api.dll"]
