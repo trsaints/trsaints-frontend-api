@@ -38,7 +38,7 @@ public class UserController: ControllerBase
         if (!result.Succeeded)
             return BadRequest(ModelState);
 
-        var roleResult = await _userManager.AddToRoleAsync(user, ResourceOperationConstants.RoleUsers);
+        var roleResult = await _userManager.AddToRoleAsync(user, ResourceOperationsConstants.RoleUsers);
         
         if (!roleResult.Succeeded)
             return BadRequest(ModelState);
@@ -54,41 +54,45 @@ public class UserController: ControllerBase
         var result = await _signInManager.PasswordSignInAsync(userInfo.Email, userInfo.Password, isPersistent: false, lockoutOnFailure: false);
 
         if (result.Succeeded)
-            return Ok(BuildToken(userInfo));
+            return Ok(await BuildToken(userInfo));
         
         ModelState.AddModelError(string.Empty, "invalid signin");
         return BadRequest(ModelState);
     }
 
-    private UserToken BuildToken(User userInfo)
+private async Task<UserToken> BuildToken(User userInfo)
+{
+    var jwtIssuer = _configuration["Jwt:Issuer"]
+        .Replace("{JwtIssuer}", _configuration.GetValue<string>("JWT_ISSUER"));
+    var jwtAudience = _configuration["Jwt:Audience"]
+        .Replace("{JwtAudience}", _configuration.GetValue<string>("JWT_AUDIENCE"));
+    var jwtAuthKey = _configuration["Jwt:Key"]
+        .Replace("{AuthKey}", _configuration.GetValue<string>("JWT_AUTH_KEY"));
+    var user = await _userManager.FindByEmailAsync(userInfo.Email);
+
+    var claims = new List<Claim>
     {
-        var jwtIssuer = _configuration["Jwt:Issuer"]
-            .Replace("{JwtIssuer}", _configuration.GetValue<string>("JWT_ISSUER"));
-        var jwtAudience = _configuration["Jwt:Audience"]
-            .Replace("{JwtAudience}", _configuration.GetValue<string>("JWT_AUDIENCE"));
-        var jwtAuthKey = _configuration["Jwt:Key"]
-            .Replace("{AuthKey}", _configuration.GetValue<string>("JWT_AUTH_KEY"));
-        
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
-            new Claim("trsaints", "https://www.trsantos.tech"),
-            new Claim(JwtRegisteredClaimNames.Iss, jwtIssuer),
-            new Claim(JwtRegisteredClaimNames.Aud, jwtAudience),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+        new(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
+        new("trsaints", "https://www.trsantos.tech"),
+        new(JwtRegisteredClaimNames.Iss, jwtIssuer),
+        new(JwtRegisteredClaimNames.Aud, jwtAudience),
+        new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtAuthKey));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    var roles = await _userManager.GetRolesAsync(user);
+    claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        var expiration = DateTime.UtcNow.AddHours(2);
-        
-        var token = new JwtSecurityToken(claims: claims, expires:expiration, signingCredentials: credentials);
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtAuthKey));
+    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        return new UserToken
-        {
-            Token = new JwtSecurityTokenHandler().WriteToken(token),
-            Expiration = expiration
-        };
-    }
+    var expiration = DateTime.UtcNow.AddHours(2);
+
+    var token = new JwtSecurityToken(claims: claims, expires:expiration, signingCredentials: credentials);
+
+    return new UserToken
+    {
+        Token = new JwtSecurityTokenHandler().WriteToken(token),
+        Expiration = expiration
+    };
+}
 }
