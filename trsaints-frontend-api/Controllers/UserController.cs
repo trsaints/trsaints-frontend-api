@@ -25,11 +25,11 @@ public class UserController: ControllerBase
         _configuration = configuration;
     }
 
-    [HttpPost("Register")]
+    [HttpPost("signup")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateUser([FromBody] User model)
+    public async Task<IActionResult> Add([FromBody] User model)
     {
         var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
         var result = await _userManager.CreateAsync(user, model.Password);
@@ -40,7 +40,7 @@ public class UserController: ControllerBase
         return BadRequest(ModelState);
     }
 
-    [HttpPost("Login")]
+    [HttpPost("signin")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserToken>> Login([FromBody] User userInfo)
@@ -50,7 +50,7 @@ public class UserController: ControllerBase
         if (result.Succeeded)
             return Ok(BuildToken(userInfo));
         
-        ModelState.AddModelError(string.Empty, "invalid login");
+        ModelState.AddModelError(string.Empty, "invalid signin");
         return BadRequest(ModelState);
     }
 

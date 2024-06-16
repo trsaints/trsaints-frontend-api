@@ -7,9 +7,10 @@ using trsaints_frontend_api.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Controllers;
 
+[ApiController]
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = "Bearer")]
-[ApiController]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProjectController: ControllerBase
 {
     private readonly IProjectRepository _projectRepository;
@@ -23,7 +24,7 @@ public class ProjectController: ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> Get()
     {
         var projects = await _projectRepository.GetAllAsync();
         var projectDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
@@ -43,12 +44,12 @@ public class ProjectController: ControllerBase
     }
 
     [HttpGet]
-    [Route("get-projects-by-stack/{stackId:int}")]
+    [Route("stack/{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetProjectsByStack(int stackId)
+    public async Task<IActionResult> GetByStack(int id)
     {
-        var projects = await _projectRepository.GetProjectsByStackAsync(stackId);
+        var projects = await _projectRepository.GetProjectsByStackAsync(id);
 
         if (!projects.Any())
             return NotFound();
@@ -57,8 +58,9 @@ public class ProjectController: ControllerBase
     }
         
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Add(ProjectDTO projectDto)
     {
         if (!ModelState.IsValid)
@@ -73,12 +75,10 @@ public class ProjectController: ControllerBase
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Update(int id, ProjectDTO projectDto)
     {
-        if (id != projectDto.Id)
-            return BadRequest();
-            
-        if (!ModelState.IsValid)
+        if (id != projectDto.Id || !ModelState.IsValid)
             return BadRequest();
             
         await _projectRepository.UpdateAsync(_mapper.Map<Project>(projectDto));
@@ -87,7 +87,8 @@ public class ProjectController: ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Remove(int id)
     {
         var project = await _projectRepository.GetByIdAsync(id);
@@ -98,9 +99,9 @@ public class ProjectController: ControllerBase
     }
 
     [HttpGet]
-    [Route("search/{projectName}")]
+    [Route("name/{projectName}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ProjectDTO>>> Search(string projectName)
+    public async Task<ActionResult<List<ProjectDTO>>> SearchByName(string projectName)
     {
         var projects = await _projectRepository.SearchAsync(p => p.Name.Contains(projectName));
 
@@ -108,15 +109,11 @@ public class ProjectController: ControllerBase
     }
 
     [HttpGet]
-    [Route("search-project-with-stack/{criteria}")]
+    [Route("stack/{criteria}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<ProjectDTO>>> SearchProjectWithStack(string criteria)
+    public async Task<ActionResult<List<ProjectDTO>>> SearchByStack(string criteria)
     {
         var projects = _mapper.Map<List<Project>>(await _projectRepository.FindProjectWithStackAsync(criteria));
-
-        if (projects is null)
-            return NotFound();
 
         return Ok(_mapper.Map<IEnumerable<ProjectStackDTO>>(projects));
     }
