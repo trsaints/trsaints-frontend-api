@@ -1,9 +1,9 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using trsaints_frontend_api.Authorization;
 using trsaints_frontend_api.DTOs;
 using trsaints_frontend_api.Entities;
-using trsaints_frontend_api.Repositories;
 using trsaints_frontend_api.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Controllers;
@@ -45,6 +45,7 @@ public class SkillController: ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -60,6 +61,7 @@ public class SkillController: ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -77,6 +79,7 @@ public class SkillController: ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Remove(int id)

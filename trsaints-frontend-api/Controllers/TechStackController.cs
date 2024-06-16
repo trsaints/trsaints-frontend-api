@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using trsaints_frontend_api.Authorization;
 using trsaints_frontend_api.DTOs;
 using trsaints_frontend_api.Entities;
 using trsaints_frontend_api.Repositories.Interfaces;
@@ -44,6 +45,7 @@ public class TechStackController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -57,6 +59,7 @@ public class TechStackController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -72,6 +75,7 @@ public class TechStackController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Remove(int id)
