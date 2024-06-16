@@ -36,24 +36,21 @@ public static class Startup
 
    public static void AddSwagger(WebApplicationBuilder builder)
    {
-      builder.Services.AddSwaggerGen(options =>
+      builder.Services.AddSwaggerGen(c =>
       {
-         options.SwaggerDoc("v1", info: new OpenApiInfo
+         c.SwaggerDoc("v1", new OpenApiInfo { Title = "Trsaints API", Version = "v0.4.0" });
+
+         // Define the BearerAuth scheme
+         c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
          {
-            Title = "TRSaints API",
-            Version = "v1"
-         });
-    
-         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-         {
+            Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
             Name = "Authorization",
-            Type = SecuritySchemeType.ApiKey,
-            Scheme = "Bearer",
-            BearerFormat = "JWT",
             In = ParameterLocation.Header,
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer" 
          });
-    
-         options.AddSecurityRequirement(new OpenApiSecurityRequirement
+
+         c.AddSecurityRequirement(new OpenApiSecurityRequirement
          {
             {
                new OpenApiSecurityScheme
@@ -68,7 +65,6 @@ public static class Startup
             }
          });
       });
-
    }
    
    private static string? GetFormattedConnectionString(WebApplicationBuilder builder)
@@ -100,6 +96,12 @@ public static class Startup
 
    public static void AddAuthentication(WebApplicationBuilder builder)
    {
+      var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+         .Replace("{JwtIssuer}", builder.Configuration.GetValue<string>("JWT_ISSUER"));
+      var jwtAudience = builder.Configuration["Jwt:Audience"]
+         .Replace("{JwtAudience}", builder.Configuration.GetValue<string>("JWT_AUDIENCE"));
+      var jwtAuthKey = builder.Configuration["Jwt:Key"]
+         .Replace("{AuthKey}", builder.Configuration.GetValue<string>("JWT_AUTH_KEY"));
       builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
       {
          options.TokenValidationParameters = new TokenValidationParameters
@@ -108,10 +110,9 @@ public static class Startup
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"].Replace("{JwtIssuer}", builder.Configuration.GetValue<string>("JWT_ISSUER")),
-            ValidAudience = builder.Configuration["Jwt:Audience"].Replace("{JwtAudience}", builder.Configuration.GetValue<string>("JWT_AUDIENCE")),
-            IssuerSigningKey = new SymmetricSecurityKey(
-               Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"].Replace("{AuthKey}", builder.Configuration.GetValue<string>("JWT_AUTH_KEY"))))
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtAuthKey))
          };
       });
    }

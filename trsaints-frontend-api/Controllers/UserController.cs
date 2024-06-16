@@ -25,11 +25,11 @@ public class UserController: ControllerBase
         _configuration = configuration;
     }
 
-    [HttpPost("Register")]
+    [HttpPost("signup")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateUser([FromBody] User model)
+    public async Task<IActionResult> Add([FromBody] User model)
     {
         var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
         var result = await _userManager.CreateAsync(user, model.Password);
@@ -40,7 +40,7 @@ public class UserController: ControllerBase
         return BadRequest(ModelState);
     }
 
-    [HttpPost("Login")]
+    [HttpPost("signin")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserToken>> Login([FromBody] User userInfo)
@@ -50,28 +50,34 @@ public class UserController: ControllerBase
         if (result.Succeeded)
             return Ok(BuildToken(userInfo));
         
-        ModelState.AddModelError(string.Empty, "invalid login");
+        ModelState.AddModelError(string.Empty, "invalid signin");
         return BadRequest(ModelState);
     }
 
     private UserToken BuildToken(User userInfo)
     {
+        var jwtIssuer = _configuration["Jwt:Issuer"]
+            .Replace("{JwtIssuer}", _configuration.GetValue<string>("JWT_ISSUER"));
+        var jwtAudience = _configuration["Jwt:Audience"]
+            .Replace("{JwtAudience}", _configuration.GetValue<string>("JWT_AUDIENCE"));
+        var jwtAuthKey = _configuration["Jwt:Key"]
+            .Replace("{AuthKey}", _configuration.GetValue<string>("JWT_AUTH_KEY"));
+        
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
             new Claim("trsaints", "https://www.trsantos.tech"),
-            new Claim(JwtRegisteredClaimNames.Aud, _configuration["Jwt:Audience"]),
-            new Claim(JwtRegisteredClaimNames.Iss, _configuration["Jwt:Issuer"]),
+            new Claim(JwtRegisteredClaimNames.Iss, jwtIssuer),
+            new Claim(JwtRegisteredClaimNames.Aud, jwtAudience),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
-        
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"].Replace("{AuthKey}", _configuration.GetValue<string>("JWT_AUTH_KEY"))));
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtAuthKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var expiration = DateTime.UtcNow.AddHours(2);
         
-        var token = new JwtSecurityToken(
-            issuer: null, audience: null, claims: claims, expires:expiration, signingCredentials: credentials);
+        var token = new JwtSecurityToken(claims: claims, expires:expiration, signingCredentials: credentials);
 
         return new UserToken
         {

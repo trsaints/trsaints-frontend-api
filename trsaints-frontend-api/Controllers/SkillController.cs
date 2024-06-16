@@ -8,9 +8,10 @@ using trsaints_frontend_api.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Controllers;
 
+[ApiController]
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = "Bearer")]
-[ApiController]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class SkillController: ControllerBase
 {
     private readonly ISkillRepository _skillRepository;
@@ -24,7 +25,7 @@ public class SkillController: ControllerBase
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> Get()
     {
         var skills = await _skillRepository.GetAllAsync();
         var skillsDto = _mapper.Map<IEnumerable<SkillDTO>>(skills);
@@ -34,6 +35,7 @@ public class SkillController: ControllerBase
 
     [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id)
     {
         var skill = await _skillRepository.GetByIdAsync(id);
@@ -43,9 +45,9 @@ public class SkillController: ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Add(SkillDTO skillDto)
     {
         if (!ModelState.IsValid)
@@ -60,6 +62,7 @@ public class SkillController: ControllerBase
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Update(int id, SkillDTO skillDto)
     {
         if (id != skillDto.Id)
@@ -74,7 +77,8 @@ public class SkillController: ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Remove(int id)
     {
         var skill = await _skillRepository.GetByIdAsync(id);
@@ -84,11 +88,11 @@ public class SkillController: ControllerBase
     }
     
     [HttpGet]
-    [Route("search/{skillName}")]
+    [Route("search/{name}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<SkillDTO>>> Search(string skillName)
+    public async Task<ActionResult<List<SkillDTO>>> Search(string name)
     {
-        var skills = await _skillRepository.SearchAsync(s => s.Name.Contains(skillName));
+        var skills = await _skillRepository.SearchAsync(s => s.Name.Contains(name));
         var skillsDto = _mapper.Map<IEnumerable<SkillDTO>>(skills);
         
         return Ok(skillsDto);
