@@ -1,7 +1,9 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using trsaints_frontend_api.Authorization;
+using trsaints_frontend_api.Context;
 using trsaints_frontend_api.DTOs;
 using trsaints_frontend_api.Entities;
 using trsaints_frontend_api.Repositories.Interfaces;
@@ -12,14 +14,20 @@ namespace trsaints_frontend_api.Controllers;
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = "Bearer")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SkillController: ControllerBase
+public class SkillsController: DI_BaseController
 {
     private readonly ISkillRepository _skillRepository;
     private readonly IMapper _mapper;
 
-    public SkillController(ISkillRepository repository, IMapper mapper)
+    public SkillsController(
+        AppDbContext context,
+        IAuthorizationService authorizationService,
+        UserManager<ApplicationUser> userManager,
+        ISkillRepository skillRepository,
+        IMapper mapper)
+        : base(context, authorizationService, userManager)
     {
-        _skillRepository = repository;
+        _skillRepository = skillRepository;
         _mapper = mapper;
     }
     
@@ -45,7 +53,6 @@ public class SkillController: ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -55,13 +62,18 @@ public class SkillController: ControllerBase
             return BadRequest();
 
         var skill = _mapper.Map<Skill>(skillDto);
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            User, skill, ResourceOperations.Create);
+
+        if (!isAuthorized.Succeeded)
+            return Forbid();
+        
         await _skillRepository.AddAsync(skill);
 
-        return Ok(_mapper.Map<SkillDTO>(skill));
+        return Created($"/api/Skills/{skill.Id}", skillDto);
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -72,6 +84,13 @@ public class SkillController: ControllerBase
         
         if (!ModelState.IsValid)
             return BadRequest();
+        
+        var skill = _mapper.Map<Skill>(skillDto);
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            User, skill, ResourceOperations.Update);
+
+        if (!isAuthorized.Succeeded)
+            return Forbid();
 
         await _skillRepository.UpdateAsync(_mapper.Map<Skill>(skillDto));
 
@@ -79,12 +98,17 @@ public class SkillController: ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Remove(int id)
     {
         var skill = await _skillRepository.GetByIdAsync(id);
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            User, skill, ResourceOperations.Delete);
+
+        if (!isAuthorized.Succeeded)
+            return Forbid();
+        
         await _skillRepository.RemoveAsync(skill.Id);
         
         return Ok();

@@ -1,7 +1,9 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using trsaints_frontend_api.Authorization;
+using trsaints_frontend_api.Context;
 using trsaints_frontend_api.DTOs;
 using trsaints_frontend_api.Entities;
 using trsaints_frontend_api.Repositories.Interfaces;
@@ -12,12 +14,17 @@ namespace trsaints_frontend_api.Controllers;
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = "Bearer")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class TechStackController : ControllerBase
+public class TechStacksController : DI_BaseController
 {
     private readonly ITechStackRepository _techStackRepository;
     private readonly IMapper _mapper;
 
-    public TechStackController(ITechStackRepository repository, IMapper mapper)
+    public TechStacksController(
+        AppDbContext context,
+        IAuthorizationService authorizationService,
+        UserManager<ApplicationUser> userManager,
+        ITechStackRepository repository, 
+        IMapper mapper): base(context, authorizationService, userManager)
     {
         _techStackRepository = repository;
         _mapper = mapper;
@@ -45,21 +52,24 @@ public class TechStackController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Add([FromBody] TechStackDTO techStackDto)
     {
         var stack = _mapper.Map<TechStack>(techStackDto);
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            User, stack, ResourceOperations.Create);
+
+        if (!isAuthorized.Succeeded)
+            return Forbid();
 
         await _techStackRepository.AddAsync(stack);
 
-        return new CreatedAtRouteResult(new { id = techStackDto.Id }, techStackDto);
+        return Created($"/api/TechStack/{stack.Id}", techStackDto);
     }
 
     [HttpPut]
-    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -69,20 +79,31 @@ public class TechStackController : ControllerBase
             return BadRequest();
         
         var stack = _mapper.Map<TechStack>(techStackDto);
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            User, stack, ResourceOperations.Update);
+
+        if (!isAuthorized.Succeeded)
+            return Forbid();
+        
         await _techStackRepository.UpdateAsync(stack);
 
         return Ok(techStackDto);
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Remove(int id)
     {
         var stack = await _techStackRepository.GetByIdAsync(id);
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            User, stack, ResourceOperations.Delete);
+
+        if (!isAuthorized.Succeeded)
+            return Forbid();
+        
         await _techStackRepository.RemoveAsync(id);
 
-        return Ok(stack);
+        return NoContent();
     }
 }

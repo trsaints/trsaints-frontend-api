@@ -1,7 +1,9 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using trsaints_frontend_api.Authorization;
+using trsaints_frontend_api.Context;
 using trsaints_frontend_api.DTOs;
 using trsaints_frontend_api.Entities;
 using trsaints_frontend_api.Repositories.Interfaces;
@@ -12,14 +14,20 @@ namespace trsaints_frontend_api.Controllers;
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = "Bearer")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectController: ControllerBase
+public class ProjectController: DI_BaseController
 {
     private readonly IProjectRepository _projectRepository;
     private readonly IMapper _mapper;
 
-    public ProjectController(IProjectRepository repository, IMapper mapper)
+    public ProjectController(
+        AppDbContext context,
+        IAuthorizationService authorizationService,
+        UserManager<ApplicationUser> userManager,
+        IProjectRepository projectRepository,
+        IMapper mapper)
+        : base(context, authorizationService, userManager)
     {
-        _projectRepository = repository;
+        _projectRepository = projectRepository;
         _mapper = mapper;
     }
 
@@ -59,7 +67,6 @@ public class ProjectController: ControllerBase
     }
         
     [HttpPost]
-    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -69,13 +76,19 @@ public class ProjectController: ControllerBase
             return BadRequest();
 
         var project = _mapper.Map<Project>(projectDto);
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            User, project,
+            ResourceOperations.Create);
+
+        if (!isAuthorized.Succeeded)
+            return Forbid();
+        
         await _projectRepository.AddAsync(project);
 
-        return Ok(_mapper.Map<ProjectDTO>(project));
+        return Created($"/api/Project/{project.Id}", projectDto);
     }
         
     [HttpPut("{id:int}")]
-    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -83,6 +96,15 @@ public class ProjectController: ControllerBase
     {
         if (id != projectDto.Id || !ModelState.IsValid)
             return BadRequest();
+        
+        var project = _mapper.Map<Project>(projectDto);
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            User, project,
+            ResourceOperations.Update);
+
+        if (!isAuthorized.Succeeded)
+            return Forbid();
+
             
         await _projectRepository.UpdateAsync(_mapper.Map<Project>(projectDto));
 
@@ -90,16 +112,22 @@ public class ProjectController: ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = ResourceOperationConstants.RoleAdministrators)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Remove(int id)
     {
         var project = await _projectRepository.GetByIdAsync(id);
 
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            User, project,
+            ResourceOperations.Delete);
+
+        if (!isAuthorized.Succeeded)
+            return Forbid();
+        
         await _projectRepository.RemoveAsync(project.Id);
 
-        return Ok();
+        return NoContent();
     }
 
     [HttpGet]
