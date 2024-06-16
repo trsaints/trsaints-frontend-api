@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using trsaints_frontend_api.Authorization;
 using trsaints_frontend_api.Entities;
 
 namespace trsaints_frontend_api.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("api/[controller]")]
 public class UserController: ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -34,10 +35,15 @@ public class UserController: ControllerBase
         var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
         var result = await _userManager.CreateAsync(user, model.Password);
 
-        if (result.Succeeded)
-            return Ok(model);
+        if (!result.Succeeded)
+            return BadRequest(ModelState);
 
-        return BadRequest(ModelState);
+        var roleResult = await _userManager.AddToRoleAsync(user, ResourceOperationConstants.RoleUsers);
+        
+        if (!roleResult.Succeeded)
+            return BadRequest(ModelState);
+
+        return Ok(model);
     }
 
     [HttpPost("signin")]
