@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using trsaints_frontend_api.Mappings;
 using trsaints_frontend_api;
+using trsaints_frontend_api.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,10 @@ Startup.AddScopes(builder);
 builder.Services.AddAutoMapper(typeof(DomainToDtoProfile).Assembly);
 
 Startup.AddAuthentication(builder);
+builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton<IAuthorizationHandler, ResourceAdministratorsAuthorizationHandler>();
+
 Startup.AddIdentity(builder);
 
 builder.Logging.ClearProviders(); 
