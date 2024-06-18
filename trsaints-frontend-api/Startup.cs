@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using trsaints_frontend_api.Authorization;
 using trsaints_frontend_api.Context;
+using trsaints_frontend_api.Data;
 using trsaints_frontend_api.Entities;
 using trsaints_frontend_api.Repositories;
 using trsaints_frontend_api.Repositories.Interfaces;
@@ -122,5 +124,34 @@ public static class Startup
       builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
          .AddEntityFrameworkStores<AppDbContext>()
          .AddDefaultTokenProviders();
+   }
+   
+   public static async Task EnsureCreatedRoles(RoleManager<IdentityRole> roleManager)
+   {
+      var roles = new List<string>
+      {
+         ResourceOperationsConstants.RoleAdministrators,
+         ResourceOperationsConstants.RoleUsers
+      };
+
+      foreach (var role in roles)
+      {
+         if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
+      }
+   }
+   
+   public static void SeedDb(WebApplication app)
+   {
+      using var scope = app.Services.CreateScope();
+      
+      var serviceProvider = scope.ServiceProvider;
+      var context = serviceProvider.GetRequiredService<AppDbContext>();
+      context.Database.Migrate();
+      
+      var adminEmail = app.Configuration.GetValue<string>("ADMIN_USERNAME");
+      var adminPassword = app.Configuration.GetValue<string>("ADMIN_PASSWORD");
+      
+      SeedData.InitializeAsync(serviceProvider, adminEmail, adminPassword).Wait();
    }
 }
