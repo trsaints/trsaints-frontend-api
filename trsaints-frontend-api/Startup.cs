@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using trsaints_frontend_api.Authorization;
+using trsaints_frontend_api.Authorization.Constants;
 using trsaints_frontend_api.Context;
 using trsaints_frontend_api.Data;
 using trsaints_frontend_api.Entities;
@@ -16,14 +16,21 @@ namespace trsaints_frontend_api;
 
 public static class Startup
 {
+   public static void SetAllowedHosts(WebApplicationBuilder builder)
+   {
+      builder.Configuration["AllowedHosts"] =
+         builder.Configuration.GetValue<string>(AllowedDomainConstants.DomainNames);
+   }
    public static void AddCors(WebApplicationBuilder builder)
    {
       builder.Services.AddCors(options =>
       {
-         options.AddPolicy(name: "basePolicy",
+         var allowedDomains = builder.Configuration["AllowedHosts"].Split(";");
+         
+         options.AddPolicy(AllowedDomainConstants.DomainPolicy,
             policy =>
             {
-               policy.WithOrigins("https://www.trsantos.tech/", "https://localhost:8080")
+               policy.WithOrigins(allowedDomains)
                   .AllowAnyHeader()
                   .AllowAnyMethod();
             });
@@ -32,7 +39,8 @@ public static class Startup
 
    public static void AddControllers(WebApplicationBuilder builder)
    {
-      builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+      builder.Services.AddControllers()
+         .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
    }
 
@@ -71,12 +79,12 @@ public static class Startup
    
    private static string? GetFormattedConnectionString(WebApplicationBuilder builder)
    {
-      var formattedConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-         ?.Replace("{Host}", builder.Configuration.GetValue<string>("POSTGRES_HOST"))
-         .Replace("{Port}", builder.Configuration.GetValue<string>("POSTGRES_PORT"))
-         .Replace("{Database}", builder.Configuration.GetValue<string>("POSTGRES_DB"))
-         .Replace("{User}", builder.Configuration.GetValue<string>("POSTGRES_USER"))
-         .Replace("{Password}", builder.Configuration.GetValue<string>("POSTGRES_PASSWORD"));
+      var formattedConnectionString = builder.Configuration.GetConnectionString(DatabaseAccessConstants.ConnectionString)
+         ?.Replace("{Host}", builder.Configuration.GetValue<string>(DatabaseAccessConstants.ConnectionHost))
+         .Replace("{Port}", builder.Configuration.GetValue<string>(DatabaseAccessConstants.ConnectionPort))
+         .Replace("{Database}", builder.Configuration.GetValue<string>(DatabaseAccessConstants.ConnectionDatabase))
+         .Replace("{User}", builder.Configuration.GetValue<string>(DatabaseAccessConstants.ConnectionUsername))
+         .Replace("{Password}", builder.Configuration.GetValue<string>(DatabaseAccessConstants.ConnectionPassword));
 
       return formattedConnectionString;
    }
@@ -99,11 +107,12 @@ public static class Startup
    public static void AddAuthentication(WebApplicationBuilder builder)
    {
       var jwtIssuer = builder.Configuration["Jwt:Issuer"]
-         .Replace("{JwtIssuer}", builder.Configuration.GetValue<string>("JWT_ISSUER"));
+         .Replace("{JwtIssuer}", builder.Configuration.GetValue<string>(JwtAuthenticationConstants.JwtIssuer));
       var jwtAudience = builder.Configuration["Jwt:Audience"]
-         .Replace("{JwtAudience}", builder.Configuration.GetValue<string>("JWT_AUDIENCE"));
+         .Replace("{JwtAudience}", builder.Configuration.GetValue<string>(JwtAuthenticationConstants.JwtAudience));
       var jwtAuthKey = builder.Configuration["Jwt:Key"]
-         .Replace("{AuthKey}", builder.Configuration.GetValue<string>("JWT_AUTH_KEY"));
+         .Replace("{JwtIssuerSigningKey}", builder.Configuration.GetValue<string>(JwtAuthenticationConstants.JwtIssuerSigningKey));
+      
       builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
       {
          options.TokenValidationParameters = new TokenValidationParameters
@@ -149,9 +158,9 @@ public static class Startup
       var context = serviceProvider.GetRequiredService<AppDbContext>();
       context.Database.Migrate();
       
-      var adminEmail = app.Configuration.GetValue<string>("ADMIN_USERNAME");
-      var adminPassword = app.Configuration.GetValue<string>("ADMIN_PASSWORD");
+      var email = app.Configuration.GetValue<string>(DefaultUserConstants.UserName);
+      var password = app.Configuration.GetValue<string>(DefaultUserConstants.UserPassword);
       
-      SeedData.InitializeAsync(serviceProvider, adminEmail, adminPassword).Wait();
+      SeedData.InitializeAsync(serviceProvider, email, password).Wait();
    }
 }
