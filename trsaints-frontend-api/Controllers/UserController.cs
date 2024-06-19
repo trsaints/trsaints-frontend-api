@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using trsaints_frontend_api.Authorization;
+using trsaints_frontend_api.Authorization.Constants;
 using trsaints_frontend_api.Entities;
 
 namespace trsaints_frontend_api.Controllers;
@@ -63,13 +63,13 @@ public class UserController: ControllerBase
 private async Task<UserToken> BuildToken(User userInfo)
 {
     var jwtIssuer = _configuration["Jwt:Issuer"]
-        .Replace("{JwtIssuer}", _configuration.GetValue<string>("JWT_ISSUER"));
+        .Replace("{JwtIssuer}", _configuration.GetValue<string>(JwtAuthenticationConstants.JwtIssuer));
     var jwtAudience = _configuration["Jwt:Audience"]
-        .Replace("{JwtAudience}", _configuration.GetValue<string>("JWT_AUDIENCE"));
+        .Replace("{JwtAudience}", _configuration.GetValue<string>(JwtAuthenticationConstants.JwtAudience));
     var jwtAuthKey = _configuration["Jwt:Key"]
-        .Replace("{AuthKey}", _configuration.GetValue<string>("JWT_AUTH_KEY"));
+        .Replace("{JwtIssuerSigningKey}", _configuration.GetValue<string>(JwtAuthenticationConstants.JwtIssuerSigningKey));
+    
     var user = await _userManager.FindByEmailAsync(userInfo.Email);
-
     var claims = new List<Claim>
     {
         new(JwtRegisteredClaimNames.UniqueName, userInfo.Email),

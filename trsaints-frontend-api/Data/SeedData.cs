@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using trsaints_frontend_api.Authorization;
+using trsaints_frontend_api.Authorization.Constants;
 using trsaints_frontend_api.Context;
 using trsaints_frontend_api.Entities;
 
