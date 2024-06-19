@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using trsaints_frontend_api.Mappings;
 using trsaints_frontend_api;
 using trsaints_frontend_api.Authorization;
+using trsaints_frontend_api.Authorization.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
-
+Startup.SetAllowedHosts(builder);
 Startup.AddCors(builder);
 Startup.AddControllers(builder);
 
@@ -45,7 +46,7 @@ using (var scope = app.Services.CreateScope())
 
 Startup.SeedDb(app);
 
-app.UseCors();
+app.UseCors(AllowedDomainConstants.DomainPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
