@@ -1,10 +1,12 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using trsaints_frontend_api.Authorization;
 using trsaints_frontend_api.Authorization.Constants;
 using trsaints_frontend_api.Context;
 using trsaints_frontend_api.Data;
@@ -19,13 +21,14 @@ public static class Startup
    public static void SetAllowedHosts(WebApplicationBuilder builder)
    {
       builder.Configuration["AllowedHosts"] =
-         builder.Configuration.GetValue<string>(AllowedDomainConstants.DomainNames);
+         builder.Configuration.GetValue<string>(AllowedDomainConstants.DomainHostNames);
    }
    public static void AddCors(WebApplicationBuilder builder)
    {
       builder.Services.AddCors(options =>
       {
-         var allowedDomains = builder.Configuration["AllowedHosts"].Split(";");
+         var allowedDomains = builder.Configuration.GetValue<string>(AllowedDomainConstants.DomainCorsHostNames)
+            .Split(";", StringSplitOptions.RemoveEmptyEntries);
          
          options.AddPolicy(AllowedDomainConstants.DomainPolicy,
             policy =>
@@ -125,7 +128,18 @@ public static class Startup
             ValidAudience = jwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtAuthKey))
          };
-      });
+      })
+      .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyDefaults.AuthenticationScheme, null);
+   }
+   
+   public static void AddAuthorization(WebApplicationBuilder builder)
+   {
+       builder.Services.AddAuthorizationBuilder()
+           .AddPolicy("ApiKeyOrJwt", policy =>
+           {
+               policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, ApiKeyDefaults.AuthenticationScheme);
+               policy.RequireAuthenticatedUser();
+           });
    }
 
    public static void AddIdentity(WebApplicationBuilder builder)

@@ -19,7 +19,7 @@ Startup.AddScopes(builder);
 builder.Services.AddAutoMapper(typeof(DomainToDtoProfile).Assembly);
 
 Startup.AddAuthentication(builder);
-builder.Services.AddAuthorization();
+Startup.AddAuthorization(builder);
 
 builder.Services.AddSingleton<IAuthorizationHandler, ResourceUsersAuthorizationHandler>();
 builder.Services.AddSingleton<IAuthorizationHandler, ResourceAdministratorsAuthorizationHandler>();
