@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using trsaints_frontend_api.Authorization;
-using trsaints_frontend_api.Context;
-using trsaints_frontend_api.Entities;
+using trsaints_frontend_api.Constants;
+using trsaints_frontend_api.Data.Context;
+using trsaints_frontend_api.Data.Entities;
 
 namespace trsaints_frontend_api.Data;
 

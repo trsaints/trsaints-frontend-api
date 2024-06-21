@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using trsaints_frontend_api.Mappings;
+using trsaints_frontend_api.Data.Mappings;
 using trsaints_frontend_api;
-using trsaints_frontend_api.Authorization;
+using trsaints_frontend_api.Authorization.Middleware;
+using trsaints_frontend_api.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
-
+Startup.SetAllowedHosts(builder);
 Startup.AddCors(builder);
 Startup.AddControllers(builder);
 
@@ -18,7 +19,7 @@ Startup.AddScopes(builder);
 builder.Services.AddAutoMapper(typeof(DomainToDtoProfile).Assembly);
 
 Startup.AddAuthentication(builder);
-builder.Services.AddAuthorization();
+Startup.AddAuthorization(builder);
 
 builder.Services.AddSingleton<IAuthorizationHandler, ResourceUsersAuthorizationHandler>();
 builder.Services.AddSingleton<IAuthorizationHandler, ResourceAdministratorsAuthorizationHandler>();
@@ -45,7 +46,7 @@ using (var scope = app.Services.CreateScope())
 
 Startup.SeedDb(app);
 
-app.UseCors();
+app.UseCors(AllowedDomainConstants.DomainPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

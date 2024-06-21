@@ -3,16 +3,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using trsaints_frontend_api.Authorization;
-using trsaints_frontend_api.Context;
-using trsaints_frontend_api.DTOs;
-using trsaints_frontend_api.Entities;
-using trsaints_frontend_api.Repositories.Interfaces;
+using trsaints_frontend_api.Constants;
+using trsaints_frontend_api.Data.Context;
+using trsaints_frontend_api.Data.DTOs;
+using trsaints_frontend_api.Data.Entities;
+using trsaints_frontend_api.Data.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = "Bearer")]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class TechStacksController : DI_BaseController
 {
@@ -31,6 +32,7 @@ public class TechStacksController : DI_BaseController
     }
 
     [HttpGet]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<TechStackDTO>>> Get()
     {
@@ -40,7 +42,9 @@ public class TechStacksController : DI_BaseController
         return Ok(stacksDto);
     }
 
+
     [HttpGet("{id:int}")]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TechStackDTO>> GetById(int id)
@@ -52,8 +56,8 @@ public class TechStacksController : DI_BaseController
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Add([FromBody] TechStackDTO techStackDto)
     {
@@ -69,9 +73,9 @@ public class TechStacksController : DI_BaseController
         return Created($"/api/TechStack/{stack.Id}", techStackDto);
     }
 
-    [HttpPut]
+    [HttpPut("{id:int}")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Update(int id, [FromBody] TechStackDTO techStackDto)
     {
@@ -91,6 +95,7 @@ public class TechStacksController : DI_BaseController
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Remove(int id)

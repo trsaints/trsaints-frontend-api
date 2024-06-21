@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using trsaints_frontend_api.Context;
-using trsaints_frontend_api.Entities;
+using trsaints_frontend_api.Data.Context;
+using trsaints_frontend_api.Data.Entities;
 
 namespace trsaints_frontend_api.Controllers;
 
