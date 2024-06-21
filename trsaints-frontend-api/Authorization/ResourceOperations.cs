@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authorization.Infrastructure;
-using trsaints_frontend_api.Authorization.Constants;
+using trsaints_frontend_api.Constants;
 
 namespace trsaints_frontend_api.Authorization;
 

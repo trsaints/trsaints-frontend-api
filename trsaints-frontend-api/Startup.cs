@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using trsaints_frontend_api.Authorization;
-using trsaints_frontend_api.Authorization.Constants;
-using trsaints_frontend_api.Context;
+using trsaints_frontend_api.Authorization.Middleware;
+using trsaints_frontend_api.Constants;
 using trsaints_frontend_api.Data;
-using trsaints_frontend_api.Entities;
-using trsaints_frontend_api.Repositories;
-using trsaints_frontend_api.Repositories.Interfaces;
+using trsaints_frontend_api.Data.Context;
+using trsaints_frontend_api.Data.Entities;
+using trsaints_frontend_api.Data.Repositories;
+using trsaints_frontend_api.Data.Repositories.Interfaces;
 
 namespace trsaints_frontend_api;
 

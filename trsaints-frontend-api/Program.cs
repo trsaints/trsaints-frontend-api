@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using trsaints_frontend_api.Mappings;
+using trsaints_frontend_api.Data.Mappings;
 using trsaints_frontend_api;
-using trsaints_frontend_api.Authorization;
-using trsaints_frontend_api.Authorization.Constants;
+using trsaints_frontend_api.Authorization.Middleware;
+using trsaints_frontend_api.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 Startup.SetAllowedHosts(builder);
