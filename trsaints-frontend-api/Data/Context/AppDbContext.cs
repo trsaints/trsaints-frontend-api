@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using trsaints_frontend_api.Entities;
+using trsaints_frontend_api.Data.Entities;
 
-namespace trsaints_frontend_api.Context;
+namespace trsaints_frontend_api.Data.Context;
 
 public class AppDbContext: IdentityDbContext<ApplicationUser>
 {

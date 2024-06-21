@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using trsaints_frontend_api.Constants;
 
 namespace trsaints_frontend_api.Authorization;
 
@@ -10,13 +11,3 @@ public static class ResourceOperations
     public static readonly OperationAuthorizationRequirement Delete = new() {Name=ResourceOperationsConstants.OperationDelete};
 }
 
-public static class ResourceOperationsConstants
-{
-    public const string OperationCreate = "Create";
-    public const string OperationRead = "Read";
-    public const string OperationUpdate = "Update";
-    public const string OperationDelete = "Delete";
-    
-    public const string RoleAdministrators = "ResourceAdministrator";
-    public const string RoleUsers = "ResourceUser";
-}
