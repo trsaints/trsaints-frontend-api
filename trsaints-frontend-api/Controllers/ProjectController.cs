@@ -122,6 +122,9 @@ public class ProjectController: DI_BaseController
     {
         var project = await _projectRepository.GetByIdAsync(id);
 
+        if (project is null)
+            return NoContent();
+
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
             User, project,
             ResourceOperations.Delete);
