@@ -135,7 +135,7 @@ public static class Startup
    public static void AddAuthorization(WebApplicationBuilder builder)
    {
        builder.Services.AddAuthorizationBuilder()
-           .AddPolicy("ApiKeyOrJwt", policy =>
+           .AddPolicy(ApiKeyDefaults.AuthenticationPolicy, policy =>
            {
                policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, ApiKeyDefaults.AuthenticationScheme);
                policy.RequireAuthenticatedUser();
