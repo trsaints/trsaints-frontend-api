@@ -11,12 +11,12 @@ public class ProjectRepository: Repository<Project>, IProjectRepository
 
     public async Task<IEnumerable<Project>> GetProjectsByStackAsync(int stackId)
     {
-        return await _db.Projects.Where(p => p.StackId == stackId).ToListAsync();
+        return await Db.Projects.Where(p => p.StackId == stackId).ToListAsync();
     }
 
     public async Task<IEnumerable<Project>> FindProjectWithStackAsync(string criteria)
     {
-        return await _db.Projects.AsNoTracking()
+        return await Db.Projects.AsNoTracking()
             .Include(p => p.TechStack)
             .Where(p => p.Name.Contains(criteria) ||
                         p.Description.Contains(criteria) ||
