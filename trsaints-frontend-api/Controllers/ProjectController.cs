@@ -12,7 +12,7 @@ namespace trsaints_frontend_api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = "Bearer")]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProjectController: DI_BaseController
 {
@@ -32,6 +32,7 @@ public class ProjectController: DI_BaseController
     }
 
     [HttpGet]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Get()
     {
@@ -42,6 +43,7 @@ public class ProjectController: DI_BaseController
     }
 
     [HttpGet("{id:int}")]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id)
@@ -52,8 +54,8 @@ public class ProjectController: DI_BaseController
         return Ok(projectDto);
     }
 
-    [HttpGet]
-    [Route("stack/{id:int}")]
+    [HttpGet("stack/{id:int}")]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByStack(int id)
@@ -67,8 +69,8 @@ public class ProjectController: DI_BaseController
     }
         
     [HttpPost]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Add(ProjectDTO projectDto)
     {
@@ -89,8 +91,8 @@ public class ProjectController: DI_BaseController
     }
         
     [HttpPut("{id:int}")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Update(int id, ProjectDTO projectDto)
     {
@@ -112,6 +114,7 @@ public class ProjectController: DI_BaseController
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Remove(int id)
@@ -132,6 +135,7 @@ public class ProjectController: DI_BaseController
 
     [HttpGet]
     [Route("name/{projectName}")]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<ProjectDTO>>> SearchByName(string projectName)
     {
@@ -142,6 +146,7 @@ public class ProjectController: DI_BaseController
 
     [HttpGet]
     [Route("stack/{criteria}")]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<ProjectDTO>>> SearchByStack(string criteria)
     {

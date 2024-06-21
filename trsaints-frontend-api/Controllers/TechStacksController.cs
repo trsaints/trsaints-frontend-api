@@ -12,7 +12,7 @@ namespace trsaints_frontend_api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = "Bearer")]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class TechStacksController : DI_BaseController
 {
@@ -31,6 +31,7 @@ public class TechStacksController : DI_BaseController
     }
 
     [HttpGet]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<TechStackDTO>>> Get()
     {
@@ -40,7 +41,9 @@ public class TechStacksController : DI_BaseController
         return Ok(stacksDto);
     }
 
+
     [HttpGet("{id:int}")]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TechStackDTO>> GetById(int id)
@@ -52,8 +55,8 @@ public class TechStacksController : DI_BaseController
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Add([FromBody] TechStackDTO techStackDto)
     {
@@ -70,8 +73,8 @@ public class TechStacksController : DI_BaseController
     }
 
     [HttpPut]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Update(int id, [FromBody] TechStackDTO techStackDto)
     {
@@ -91,6 +94,7 @@ public class TechStacksController : DI_BaseController
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Remove(int id)
