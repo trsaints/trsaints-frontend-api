@@ -13,6 +13,8 @@ using trsaints_frontend_api.Data.Context;
 using trsaints_frontend_api.Data.Entities;
 using trsaints_frontend_api.Data.Repositories;
 using trsaints_frontend_api.Data.Repositories.Interfaces;
+using trsaints_frontend_api.Services;
+using trsaints_frontend_api.Services.Interfaces;
 
 namespace trsaints_frontend_api;
 
@@ -105,6 +107,7 @@ public static class Startup
       builder.Services.AddScoped<ITechStackRepository, TechStackRepository>();
       builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
       builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+      builder.Services.AddScoped<ITechStackService, TechStackService>();
    }
 
    public static void AddAuthentication(WebApplicationBuilder builder)
