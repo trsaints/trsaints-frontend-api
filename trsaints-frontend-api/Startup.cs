@@ -108,6 +108,7 @@ public static class Startup
       builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
       builder.Services.AddScoped<ISkillRepository, SkillRepository>();
       builder.Services.AddScoped<ITechStackService, TechStackService>();
+      builder.Services.AddScoped<IValidationService, ValidationService>();
    }
 
    public static void AddAuthentication(WebApplicationBuilder builder)

@@ -8,6 +8,7 @@ using trsaints_frontend_api.Data.Context;
 using trsaints_frontend_api.Data.DTOs;
 using trsaints_frontend_api.Data.Entities;
 using trsaints_frontend_api.Data.Repositories.Interfaces;
+using trsaints_frontend_api.Services.Interfaces;
 
 namespace trsaints_frontend_api.Controllers;
 
@@ -17,19 +18,23 @@ namespace trsaints_frontend_api.Controllers;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProjectsController: DI_BaseController
 {
-    private readonly IProjectRepository _projectRepository;
     private readonly IMapper _mapper;
+    private readonly IProjectRepository _projectRepository;
+    private readonly IValidationService _validationService;
 
     public ProjectsController(
         AppDbContext context,
         IAuthorizationService authorizationService,
         UserManager<ApplicationUser> userManager,
+        IMapper mapper,
         IProjectRepository projectRepository,
-        IMapper mapper)
+        IValidationService validationService
+        )
         : base(context, authorizationService, userManager)
     {
-        _projectRepository = projectRepository;
         _mapper = mapper;
+        _projectRepository = projectRepository;
+        _validationService = validationService;
     }
 
     
@@ -41,6 +46,11 @@ public class ProjectsController: DI_BaseController
     {
         if (!ModelState.IsValid)
             return BadRequest();
+
+        var isValidDate = _validationService.ValidateDateTime(projectDto.Date);
+        
+        if (!isValidDate)
+            return BadRequest("Invalid date format. Expected dd/MM/yyyy");
 
         var project = _mapper.Map<Project>(projectDto);
         var authorization = await AuthorizationService.AuthorizeAsync(
@@ -152,6 +162,11 @@ public class ProjectsController: DI_BaseController
         if (id != projectDto.Id || !ModelState.IsValid)
             return BadRequest();
         
+        var isValidDate = _validationService.ValidateDateTime(projectDto.Date);
+        
+        if (!isValidDate)
+            return BadRequest("Invalid date format. Expected dd/MM/yyyy");
+        
         var project = _mapper.Map<Project>(projectDto);
         var authorization = await AuthorizationService.AuthorizeAsync(
             User, project,
@@ -159,8 +174,7 @@ public class ProjectsController: DI_BaseController
 
         if (!authorization.Succeeded)
             return Forbid();
-
-            
+        
         await _projectRepository.UpdateAsync(_mapper.Map<Project>(projectDto));
 
         return Ok(projectDto);
