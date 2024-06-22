@@ -32,6 +32,30 @@ public class ProjectsController: DI_BaseController
         _mapper = mapper;
     }
 
+    
+    [HttpPost]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> Add(ProjectDTO projectDto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest();
+
+        var project = _mapper.Map<Project>(projectDto);
+        var authorization = await AuthorizationService.AuthorizeAsync(
+            User, project,
+            ResourceOperations.Create);
+
+        if (!authorization.Succeeded)
+            return Forbid();
+        
+        await _projectRepository.AddAsync(project);
+
+        return Created($"/api/Project/{project.Id}", projectDto);
+    }
+    
+    
     [HttpGet]
     [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -50,16 +74,43 @@ public class ProjectsController: DI_BaseController
     public async Task<IActionResult> GetById(int id)
     {
         var project = await _projectRepository.GetByIdAsync(id);
+
+        if (project is null)
+            return NotFound();
+        
         var projectDto = _mapper.Map<ProjectDTO>(project);
             
         return Ok(projectDto);
+    }
+    
+        
+    [HttpGet]
+    [Route("name/{projectName}")]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<ProjectDTO>>> GetByName(string projectName)
+    {
+        var projects = await _projectRepository.SearchAsync(p => p.Name.Contains(projectName));
+
+        return Ok(_mapper.Map<IEnumerable<ProjectDTO>>(projects));
+    }
+    
+    [HttpGet]
+    [Route("stack/{criteria}")]
+    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<ProjectDTO>>> GetByStack(string criteria)
+    {
+        var projects = _mapper.Map<List<Project>>(await _projectRepository.FindProjectWithStackAsync(criteria));
+
+        return Ok(_mapper.Map<IEnumerable<ProjectStackDTO>>(projects));
     }
 
     [HttpGet("stack/{id:int}")]
     [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByStack(int id)
+    public async Task<IActionResult> GetByStackId(int id)
     {
         var projects = await _projectRepository.GetProjectsByStackAsync(id);
 
@@ -68,52 +119,7 @@ public class ProjectsController: DI_BaseController
             
         return Ok(_mapper.Map<IEnumerable<ProjectDTO>>(projects));
     }
-        
-    [HttpPost]
-    [Authorize(AuthenticationSchemes = "Bearer")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> Add(ProjectDTO projectDto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest();
-
-        var project = _mapper.Map<Project>(projectDto);
-        var isAuthorized = await AuthorizationService.AuthorizeAsync(
-            User, project,
-            ResourceOperations.Create);
-
-        if (!isAuthorized.Succeeded)
-            return Forbid();
-        
-        await _projectRepository.AddAsync(project);
-
-        return Created($"/api/Project/{project.Id}", projectDto);
-    }
-        
-    [HttpPut("{id:int}")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> Update(int id, ProjectDTO projectDto)
-    {
-        if (id != projectDto.Id || !ModelState.IsValid)
-            return BadRequest();
-        
-        var project = _mapper.Map<Project>(projectDto);
-        var isAuthorized = await AuthorizationService.AuthorizeAsync(
-            User, project,
-            ResourceOperations.Update);
-
-        if (!isAuthorized.Succeeded)
-            return Forbid();
-
-            
-        await _projectRepository.UpdateAsync(_mapper.Map<Project>(projectDto));
-
-        return Ok(projectDto);
-    }
-
+    
     [HttpDelete("{id:int}")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -125,37 +131,38 @@ public class ProjectsController: DI_BaseController
         if (project is null)
             return NoContent();
 
-        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+        var authorization = await AuthorizationService.AuthorizeAsync(
             User, project,
             ResourceOperations.Delete);
 
-        if (!isAuthorized.Succeeded)
+        if (!authorization.Succeeded)
             return Forbid();
         
         await _projectRepository.RemoveAsync(project.Id);
 
         return NoContent();
     }
-
-    [HttpGet]
-    [Route("name/{projectName}")]
-    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
+    
+    [HttpPut("{id:int}")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ProjectDTO>>> SearchByName(string projectName)
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> Update(int id, ProjectDTO projectDto)
     {
-        var projects = await _projectRepository.SearchAsync(p => p.Name.Contains(projectName));
+        if (id != projectDto.Id || !ModelState.IsValid)
+            return BadRequest();
+        
+        var project = _mapper.Map<Project>(projectDto);
+        var authorization = await AuthorizationService.AuthorizeAsync(
+            User, project,
+            ResourceOperations.Update);
 
-        return Ok(_mapper.Map<IEnumerable<ProjectDTO>>(projects));
-    }
+        if (!authorization.Succeeded)
+            return Forbid();
 
-    [HttpGet]
-    [Route("stack/{criteria}")]
-    [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ProjectDTO>>> SearchByStack(string criteria)
-    {
-        var projects = _mapper.Map<List<Project>>(await _projectRepository.FindProjectWithStackAsync(criteria));
+            
+        await _projectRepository.UpdateAsync(_mapper.Map<Project>(projectDto));
 
-        return Ok(_mapper.Map<IEnumerable<ProjectStackDTO>>(projects));
+        return Ok(projectDto);
     }
 }
