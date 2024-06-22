@@ -20,6 +20,7 @@ public class ProjectsController: DI_BaseController
 {
     private readonly IMapper _mapper;
     private readonly IProjectRepository _projectRepository;
+    private readonly ITechStackService _techStackService;
     private readonly IValidationService _validationService;
 
     public ProjectsController(
@@ -28,12 +29,14 @@ public class ProjectsController: DI_BaseController
         UserManager<ApplicationUser> userManager,
         IMapper mapper,
         IProjectRepository projectRepository,
+        ITechStackService techStackService,
         IValidationService validationService
         )
         : base(context, authorizationService, userManager)
     {
         _mapper = mapper;
         _projectRepository = projectRepository;
+        _techStackService = techStackService;
         _validationService = validationService;
     }
 
@@ -48,15 +51,18 @@ public class ProjectsController: DI_BaseController
             return BadRequest();
 
         var isValidDate = _validationService.ValidateDateTime(projectDto.Date);
-        
         if (!isValidDate)
             return BadRequest("Invalid date format. Expected dd/MM/yyyy");
-
+        
+        var stackExists = await _techStackService.StackExists(projectDto.StackId);
+        if (!stackExists)
+            return BadRequest("Tech stack not found");
+        
         var project = _mapper.Map<Project>(projectDto);
         var authorization = await AuthorizationService.AuthorizeAsync(
             User, project,
             ResourceOperations.Create);
-
+        
         if (!authorization.Succeeded)
             return Forbid();
         
@@ -163,9 +169,12 @@ public class ProjectsController: DI_BaseController
             return BadRequest();
         
         var isValidDate = _validationService.ValidateDateTime(projectDto.Date);
-        
         if (!isValidDate)
             return BadRequest("Invalid date format. Expected dd/MM/yyyy");
+        
+        var stackExists = await _techStackService.StackExists(projectDto.StackId);
+        if (!stackExists)
+            return BadRequest("Tech stack not found");
         
         var project = _mapper.Map<Project>(projectDto);
         var authorization = await AuthorizationService.AuthorizeAsync(
