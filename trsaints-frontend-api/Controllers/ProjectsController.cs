@@ -15,12 +15,12 @@ namespace trsaints_frontend_api.Controllers;
 [Route("api/[controller]")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectController: DI_BaseController
+public class ProjectsController: DI_BaseController
 {
     private readonly IProjectRepository _projectRepository;
     private readonly IMapper _mapper;
 
-    public ProjectController(
+    public ProjectsController(
         AppDbContext context,
         IAuthorizationService authorizationService,
         UserManager<ApplicationUser> userManager,
