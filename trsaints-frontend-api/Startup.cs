@@ -46,7 +46,6 @@ public static class Startup
    {
       builder.Services.AddControllers()
          .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-
    }
 
    public static void AddSwagger(WebApplicationBuilder builder)
@@ -82,6 +81,13 @@ public static class Startup
       });
    }
    
+   public static void AddDbContext(WebApplicationBuilder builder)
+   {
+      var connectionString = GetFormattedConnectionString(builder);
+
+      builder.Services.AddDbContext<AppDbContext>(options =>
+         options.UseNpgsql(connectionString, b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+   }
    private static string? GetFormattedConnectionString(WebApplicationBuilder builder)
    {
       var formattedConnectionString = builder.Configuration.GetConnectionString(DatabaseAccessConstants.ConnectionString)
@@ -94,13 +100,6 @@ public static class Startup
       return formattedConnectionString;
    }
 
-   public static void AddDbContext(WebApplicationBuilder builder)
-   {
-      var connectionString = GetFormattedConnectionString(builder);
-
-      builder.Services.AddDbContext<AppDbContext>(options =>
-         options.UseNpgsql(connectionString, b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
-   }
 
    public static void AddScopes(WebApplicationBuilder builder)
    {
