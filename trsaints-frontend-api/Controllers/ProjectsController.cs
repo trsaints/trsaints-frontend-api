@@ -112,7 +112,7 @@ public class ProjectsController: DI_BaseController
     }
     
     [HttpGet]
-    [Route("stack/{criteria}")]
+    [Route("stack/search/{criteria}")]
     [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<ProjectDTO>>> GetByStack(string criteria)
