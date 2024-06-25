@@ -107,6 +107,10 @@ public class SkillsController: DI_BaseController
     public async Task<IActionResult> Remove(int id)
     {
         var skill = await _skillRepository.GetByIdAsync(id);
+
+        if (skill is null)
+            return NoContent();
+        
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
             User, skill, ResourceOperations.Delete);
 
@@ -115,7 +119,7 @@ public class SkillsController: DI_BaseController
         
         await _skillRepository.RemoveAsync(skill.Id);
         
-        return Ok();
+        return NoContent();
     }
     
     [HttpGet("search/{name}")]

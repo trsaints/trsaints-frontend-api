@@ -8,6 +8,7 @@ using trsaints_frontend_api.Data.Context;
 using trsaints_frontend_api.Data.DTOs;
 using trsaints_frontend_api.Data.Entities;
 using trsaints_frontend_api.Data.Repositories.Interfaces;
+using trsaints_frontend_api.Services.Interfaces;
 
 namespace trsaints_frontend_api.Controllers;
 
@@ -18,6 +19,7 @@ namespace trsaints_frontend_api.Controllers;
 public class TechStacksController : DI_BaseController
 {
     private readonly ITechStackRepository _techStackRepository;
+    private readonly ITechStackService _techStackService;
     private readonly IMapper _mapper;
 
     public TechStacksController(
@@ -25,9 +27,11 @@ public class TechStacksController : DI_BaseController
         IAuthorizationService authorizationService,
         UserManager<ApplicationUser> userManager,
         ITechStackRepository repository, 
+        ITechStackService techStackService,
         IMapper mapper): base(context, authorizationService, userManager)
     {
         _techStackRepository = repository;
+        _techStackService = techStackService;
         _mapper = mapper;
     }
 
@@ -101,11 +105,20 @@ public class TechStacksController : DI_BaseController
     public async Task<ActionResult> Remove(int id)
     {
         var stack = await _techStackRepository.GetByIdAsync(id);
+
+        if (stack is null)
+            return NoContent();
+        
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
             User, stack, ResourceOperations.Delete);
 
         if (!isAuthorized.Succeeded)
             return Forbid();
+
+        var hasRelatedProjects = _techStackService.HasRelatedProjects(id);
+        
+        if (hasRelatedProjects)
+            return Conflict("Cannot delete a tech stack that is related to one or more projects.");
         
         await _techStackRepository.RemoveAsync(id);
 
