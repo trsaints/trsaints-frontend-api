@@ -5,7 +5,7 @@ using trsaints_frontend_api.Data.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Data.Repositories;
 
-public class ProjectRepository: Repository<Project>, IProjectRepository
+public class ProjectRepository: Repository<Project>, IProjectRepository, IRelatedProjectsRepository
 {
     public ProjectRepository(AppDbContext context) : base(context) { }
 

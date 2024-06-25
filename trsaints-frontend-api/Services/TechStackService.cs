@@ -5,18 +5,18 @@ namespace trsaints_frontend_api.Services
 {
     public class TechStackService : ITechStackService
     {
-        private readonly IProjectRepository _projectRepository;
+        private readonly IRelatedProjectsRepository _relatedProjectsRepository;
         private readonly ITechStackRepository _techStackRepository;
 
-        public TechStackService(IProjectRepository projectRepository, ITechStackRepository techStackRepository)
+        public TechStackService(IRelatedProjectsRepository relatedProjectsRepository, ITechStackRepository techStackRepository)
         {
-            _projectRepository = projectRepository;
+            _relatedProjectsRepository = relatedProjectsRepository;
             _techStackRepository = techStackRepository;
         }
 
         public bool HasRelatedProjects(int id)
         {
-            var relatedProjects = _projectRepository.GetProjectsByStackAsync(id);
+            var relatedProjects = _relatedProjectsRepository.GetProjectsByStackAsync(id);
             relatedProjects.Wait();
 
             return relatedProjects.Result.Any();
