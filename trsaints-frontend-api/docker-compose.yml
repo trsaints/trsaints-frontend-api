@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  webapi:
+    image: trsaints-frontend-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - JWT_SINGING_KEY=${JWT_SINGING_KEY}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - db
+    networks:
+      - trsaints-network
+
+  db:
+    image: postgres:alpine3.20
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - trsaints-network
+
+volumes:
+  postgres_data:
+
+networks:
+  trsaints-network:
