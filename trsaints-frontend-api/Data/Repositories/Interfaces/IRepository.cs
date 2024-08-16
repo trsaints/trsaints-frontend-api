@@ -11,5 +11,6 @@ public interface IRepository<T> : IDisposable where T : Entity
     Task UpdateAsync(T entity);
     Task RemoveAsync(int? id);
 
-    Task<IEnumerable<T>> SearchAsync(Expression<Func<T, bool>> predicate);
+    Task<IEnumerable<T>> SearchAsync(
+        Expression<Func<T, bool>> predicate);
 }

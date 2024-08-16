@@ -12,7 +12,7 @@ public class SkillDTO
     [MaxLength(100)]
     [DisplayName("Name")]
     public string Name { get; set; }
-    
+
     [Required(ErrorMessage = "Category is required")]
     [MinLength(3)]
     [MaxLength(100)]

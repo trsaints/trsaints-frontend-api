@@ -16,22 +16,21 @@ namespace trsaints_frontend_api.Controllers;
 [Route("api/[controller]")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectsController: DI_BaseController
+public class ProjectsController : DI_BaseController
 {
     private readonly IMapper _mapper;
     private readonly IProjectRepository _projectRepository;
     private readonly ITechStackService _techStackService;
     private readonly IValidationService _validationService;
 
-    public ProjectsController(
-        AppDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<ApplicationUser> userManager,
-        IMapper mapper,
-        IProjectRepository projectRepository,
-        ITechStackService techStackService,
-        IValidationService validationService
-        )
+    public ProjectsController(AppDbContext context,
+                              IAuthorizationService
+                                  authorizationService,
+                              UserManager<ApplicationUser> userManager,
+                              IMapper mapper,
+                              IProjectRepository projectRepository,
+                              ITechStackService techStackService,
+                              IValidationService validationService)
         : base(context, authorizationService, userManager)
     {
         _mapper = mapper;
@@ -40,7 +39,7 @@ public class ProjectsController: DI_BaseController
         _validationService = validationService;
     }
 
-    
+
     [HttpPost]
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -50,28 +49,32 @@ public class ProjectsController: DI_BaseController
         if (!ModelState.IsValid)
             return BadRequest();
 
-        var isValidDate = _validationService.ValidateDateTime(projectDto.Date);
+        var isValidDate =
+            _validationService.ValidateDateTime(projectDto.Date);
         if (!isValidDate)
-            return BadRequest("Invalid date format. Expected dd/MM/yyyy");
-        
-        var stackExists = await _techStackService.StackExists(projectDto.StackId);
+            return BadRequest(
+                "Invalid date format. Expected dd/MM/yyyy");
+
+        var stackExists =
+            await _techStackService.StackExists(projectDto.StackId);
         if (!stackExists)
             return BadRequest("Tech stack not found");
-        
+
         var project = _mapper.Map<Project>(projectDto);
         var authorization = await AuthorizationService.AuthorizeAsync(
-            User, project,
-            ResourceOperations.Create);
-        
+                                User,
+                                project,
+                                ResourceOperations.Create);
+
         if (!authorization.Succeeded)
             return Forbid();
-        
+
         await _projectRepository.AddAsync(project);
 
         return Created($"/api/Project/{project.Id}", projectDto);
     }
-    
-    
+
+
     [HttpGet]
     [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -79,7 +82,7 @@ public class ProjectsController: DI_BaseController
     {
         var projects = await _projectRepository.GetAllAsync();
         var projectDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
-            
+
         return Ok(projectDto);
     }
 
@@ -93,31 +96,37 @@ public class ProjectsController: DI_BaseController
 
         if (project is null)
             return NotFound();
-        
+
         var projectDto = _mapper.Map<ProjectDTO>(project);
-            
+
         return Ok(projectDto);
     }
-    
-        
+
+
     [HttpGet]
     [Route("name/{projectName}")]
     [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ProjectDTO>>> GetByName(string projectName)
+    public async Task<ActionResult<List<ProjectDTO>>> GetByName(
+        string projectName)
     {
-        var projects = await _projectRepository.SearchAsync(p => p.Name.Contains(projectName));
+        var projects =
+            await _projectRepository.SearchAsync(
+                p => p.Name.Contains(projectName));
 
         return Ok(_mapper.Map<IEnumerable<ProjectDTO>>(projects));
     }
-    
+
     [HttpGet]
     [Route("stack/search/{criteria}")]
     [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ProjectDTO>>> GetByStack(string criteria)
+    public async Task<ActionResult<List<ProjectDTO>>> GetByStack(
+        string criteria)
     {
-        var projects = _mapper.Map<List<Project>>(await _projectRepository.FindProjectWithStackAsync(criteria));
+        var projects = _mapper.Map<List<Project>>(
+            await _projectRepository
+                .FindProjectWithStackAsync(criteria));
 
         return Ok(_mapper.Map<IEnumerable<ProjectStackDTO>>(projects));
     }
@@ -128,14 +137,15 @@ public class ProjectsController: DI_BaseController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByStackId(int id)
     {
-        var projects = await _projectRepository.GetProjectsByStackAsync(id);
+        var projects =
+            await _projectRepository.GetProjectsByStackAsync(id);
 
         if (!projects.Any())
             return NotFound();
-            
+
         return Ok(_mapper.Map<IEnumerable<ProjectDTO>>(projects));
     }
-    
+
     [HttpDelete("{id:int}")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -148,43 +158,51 @@ public class ProjectsController: DI_BaseController
             return NoContent();
 
         var authorization = await AuthorizationService.AuthorizeAsync(
-            User, project,
-            ResourceOperations.Delete);
+                                User,
+                                project,
+                                ResourceOperations.Delete);
 
         if (!authorization.Succeeded)
             return Forbid();
-        
+
         await _projectRepository.RemoveAsync(project.Id);
 
         return NoContent();
     }
-    
+
     [HttpPut("{id:int}")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> Update(int id, ProjectDTO projectDto)
+    public async Task<IActionResult> Update(
+        int id,
+        ProjectDTO projectDto)
     {
         if (id != projectDto.Id || !ModelState.IsValid)
             return BadRequest();
-        
-        var isValidDate = _validationService.ValidateDateTime(projectDto.Date);
+
+        var isValidDate =
+            _validationService.ValidateDateTime(projectDto.Date);
         if (!isValidDate)
-            return BadRequest("Invalid date format. Expected dd/MM/yyyy");
-        
-        var stackExists = await _techStackService.StackExists(projectDto.StackId);
+            return BadRequest(
+                "Invalid date format. Expected dd/MM/yyyy");
+
+        var stackExists =
+            await _techStackService.StackExists(projectDto.StackId);
         if (!stackExists)
             return BadRequest("Tech stack not found");
-        
+
         var project = _mapper.Map<Project>(projectDto);
         var authorization = await AuthorizationService.AuthorizeAsync(
-            User, project,
-            ResourceOperations.Update);
+                                User,
+                                project,
+                                ResourceOperations.Update);
 
         if (!authorization.Succeeded)
             return Forbid();
-        
-        await _projectRepository.UpdateAsync(_mapper.Map<Project>(projectDto));
+
+        await _projectRepository.UpdateAsync(
+            _mapper.Map<Project>(projectDto));
 
         return Ok(projectDto);
     }

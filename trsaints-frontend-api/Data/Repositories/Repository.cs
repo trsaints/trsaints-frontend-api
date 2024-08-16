@@ -6,7 +6,8 @@ using trsaints_frontend_api.Data.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Data.Repositories;
 
-public class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
+public class Repository<TEntity> : IRepository<TEntity>
+    where TEntity : Entity
 {
     protected readonly AppDbContext Db;
     private readonly DbSet<TEntity> _dbSet;
@@ -17,9 +18,12 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
         _dbSet = Db.Set<TEntity>();
     }
 
-    public async Task<IEnumerable<TEntity>> SearchAsync(Expression<Func<TEntity, bool>> predicate)
+    public async Task<IEnumerable<TEntity>>
+        SearchAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        return await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
+        return await _dbSet.AsNoTracking()
+                           .Where(predicate)
+                           .ToListAsync();
     }
 
     public async Task<TEntity> GetByIdAsync(int? id)
@@ -51,8 +55,5 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
         await Db.SaveChangesAsync();
     }
 
-    public void Dispose()
-    {
-        Db?.Dispose();
-    }
+    public void Dispose() { Db?.Dispose(); }
 }

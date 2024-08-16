@@ -22,13 +22,17 @@ public class TechStacksController : DI_BaseController
     private readonly ITechStackService _techStackService;
     private readonly IMapper _mapper;
 
-    public TechStacksController(
-        AppDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<ApplicationUser> userManager,
-        ITechStackRepository repository, 
-        ITechStackService techStackService,
-        IMapper mapper): base(context, authorizationService, userManager)
+    public TechStacksController(AppDbContext context,
+                                IAuthorizationService
+                                    authorizationService,
+                                UserManager<ApplicationUser>
+                                    userManager,
+                                ITechStackRepository repository,
+                                ITechStackService techStackService,
+                                IMapper mapper) : base(
+        context,
+        authorizationService,
+        userManager)
     {
         _techStackRepository = repository;
         _techStackService = techStackService;
@@ -42,7 +46,7 @@ public class TechStacksController : DI_BaseController
     {
         var stacks = await _techStackRepository.GetAllAsync();
         var stacksDto = _mapper.Map<IEnumerable<TechStackDTO>>(stacks);
-        
+
         return Ok(stacksDto);
     }
 
@@ -63,11 +67,14 @@ public class TechStacksController : DI_BaseController
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult> Add([FromBody] TechStackDTO techStackDto)
+    public async Task<ActionResult> Add(
+        [FromBody] TechStackDTO techStackDto)
     {
         var stack = _mapper.Map<TechStack>(techStackDto);
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
-            User, stack, ResourceOperations.Create);
+                               User,
+                               stack,
+                               ResourceOperations.Create);
 
         if (!isAuthorized.Succeeded)
             return Forbid();
@@ -81,18 +88,22 @@ public class TechStacksController : DI_BaseController
     [Authorize(AuthenticationSchemes = "Bearer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult> Update(int id, [FromBody] TechStackDTO techStackDto)
+    public async Task<ActionResult> Update(
+        int id,
+        [FromBody] TechStackDTO techStackDto)
     {
         if (id != techStackDto.Id)
             return BadRequest();
-        
+
         var stack = _mapper.Map<TechStack>(techStackDto);
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
-            User, stack, ResourceOperations.Update);
+                               User,
+                               stack,
+                               ResourceOperations.Update);
 
         if (!isAuthorized.Succeeded)
             return Forbid();
-        
+
         await _techStackRepository.UpdateAsync(stack);
 
         return Ok(techStackDto);
@@ -108,18 +119,22 @@ public class TechStacksController : DI_BaseController
 
         if (stack is null)
             return NoContent();
-        
+
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
-            User, stack, ResourceOperations.Delete);
+                               User,
+                               stack,
+                               ResourceOperations.Delete);
 
         if (!isAuthorized.Succeeded)
             return Forbid();
 
-        var hasRelatedProjects = _techStackService.HasRelatedProjects(id);
-        
+        var hasRelatedProjects =
+            _techStackService.HasRelatedProjects(id);
+
         if (hasRelatedProjects)
-            return Conflict("Cannot delete a tech stack that is related to one or more projects.");
-        
+            return Conflict(
+                "Cannot delete a tech stack that is related to one or more projects.");
+
         await _techStackRepository.RemoveAsync(id);
 
         return NoContent();

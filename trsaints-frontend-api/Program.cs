@@ -21,8 +21,12 @@ builder.Services.AddAutoMapper(typeof(DomainToDtoProfile).Assembly);
 Startup.AddAuthentication(builder);
 Startup.AddAuthorization(builder);
 
-builder.Services.AddSingleton<IAuthorizationHandler, ResourceUsersAuthorizationHandler>();
-builder.Services.AddSingleton<IAuthorizationHandler, ResourceAdministratorsAuthorizationHandler>();
+builder.Services
+       .AddSingleton<IAuthorizationHandler,
+           ResourceUsersAuthorizationHandler>();
+builder.Services
+       .AddSingleton<IAuthorizationHandler,
+           ResourceAdministratorsAuthorizationHandler>();
 
 Startup.AddIdentity(builder);
 
@@ -40,7 +44,9 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var roleManager = scope.ServiceProvider
+                           .GetRequiredService<
+                               RoleManager<IdentityRole>>();
     Startup.EnsureCreatedRoles(roleManager).Wait();
 }
 

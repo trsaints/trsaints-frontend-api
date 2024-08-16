@@ -5,21 +5,28 @@ using trsaints_frontend_api.Data.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Data.Repositories;
 
-public class ProjectRepository: Repository<Project>, IProjectRepository, IRelatedProjectsRepository
+public class ProjectRepository : Repository<Project>,
+                                 IProjectRepository,
+                                 IRelatedProjectsRepository
 {
     public ProjectRepository(AppDbContext context) : base(context) { }
 
-    public async Task<IEnumerable<Project>> GetProjectsByStackAsync(int stackId)
+    public async Task<IEnumerable<Project>>
+        GetProjectsByStackAsync(int stackId)
     {
-        return await Db.Projects.Where(p => p.StackId == stackId).ToListAsync();
+        return await Db.Projects.Where(p => p.StackId == stackId)
+                       .ToListAsync();
     }
 
-    public async Task<IEnumerable<Project>> FindProjectWithStackAsync(string criteria)
+    public async Task<IEnumerable<Project>>
+        FindProjectWithStackAsync(string criteria)
     {
         return await Db.Projects.AsNoTracking()
-            .Include(p => p.TechStack)
-            .Where(p => p.Name.Contains(criteria) ||
-                        p.Description.Contains(criteria) ||
-                        p.TechStack.Name.Contains(criteria)).ToListAsync();
+                       .Include(p => p.TechStack)
+                       .Where(p => p.Name.Contains(criteria)
+                                   || p.Description.Contains(criteria)
+                                   || p.TechStack.Name.Contains(
+                                       criteria))
+                       .ToListAsync();
     }
 }

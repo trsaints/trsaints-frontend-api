@@ -15,23 +15,22 @@ namespace trsaints_frontend_api.Controllers;
 [Route("api/[controller]")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SkillsController: DI_BaseController
+public class SkillsController : DI_BaseController
 {
     private readonly ISkillRepository _skillRepository;
     private readonly IMapper _mapper;
 
-    public SkillsController(
-        AppDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<ApplicationUser> userManager,
-        ISkillRepository skillRepository,
-        IMapper mapper)
+    public SkillsController(AppDbContext context,
+                            IAuthorizationService authorizationService,
+                            UserManager<ApplicationUser> userManager,
+                            ISkillRepository skillRepository,
+                            IMapper mapper)
         : base(context, authorizationService, userManager)
     {
         _skillRepository = skillRepository;
         _mapper = mapper;
     }
-    
+
     [HttpGet]
     [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -51,7 +50,7 @@ public class SkillsController: DI_BaseController
     {
         var skill = await _skillRepository.GetByIdAsync(id);
         var skillDto = _mapper.Map<SkillDTO>(skill);
-        
+
         return Ok(skillDto);
     }
 
@@ -66,11 +65,13 @@ public class SkillsController: DI_BaseController
 
         var skill = _mapper.Map<Skill>(skillDto);
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
-            User, skill, ResourceOperations.Create);
+                               User,
+                               skill,
+                               ResourceOperations.Create);
 
         if (!isAuthorized.Succeeded)
             return Forbid();
-        
+
         await _skillRepository.AddAsync(skill);
 
         return Created($"/api/Skills/{skill.Id}", skillDto);
@@ -84,18 +85,21 @@ public class SkillsController: DI_BaseController
     {
         if (id != skillDto.Id)
             return BadRequest();
-        
+
         if (!ModelState.IsValid)
             return BadRequest();
-        
+
         var skill = _mapper.Map<Skill>(skillDto);
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
-            User, skill, ResourceOperations.Update);
+                               User,
+                               skill,
+                               ResourceOperations.Update);
 
         if (!isAuthorized.Succeeded)
             return Forbid();
 
-        await _skillRepository.UpdateAsync(_mapper.Map<Skill>(skillDto));
+        await _skillRepository.UpdateAsync(
+            _mapper.Map<Skill>(skillDto));
 
         return Ok(skillDto);
     }
@@ -110,26 +114,30 @@ public class SkillsController: DI_BaseController
 
         if (skill is null)
             return NoContent();
-        
+
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
-            User, skill, ResourceOperations.Delete);
+                               User,
+                               skill,
+                               ResourceOperations.Delete);
 
         if (!isAuthorized.Succeeded)
             return Forbid();
-        
+
         await _skillRepository.RemoveAsync(skill.Id);
-        
+
         return NoContent();
     }
-    
+
     [HttpGet("search/{name}")]
     [Authorize(Policy = ApiKeyDefaults.AuthenticationPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<SkillDTO>>> Search(string name)
     {
-        var skills = await _skillRepository.SearchAsync(s => s.Name.Contains(name));
+        var skills =
+            await _skillRepository.SearchAsync(
+                s => s.Name.Contains(name));
         var skillsDto = _mapper.Map<IEnumerable<SkillDTO>>(skills);
-        
+
         return Ok(skillsDto);
     }
 }

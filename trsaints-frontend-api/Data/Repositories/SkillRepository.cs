@@ -4,7 +4,7 @@ using trsaints_frontend_api.Data.Repositories.Interfaces;
 
 namespace trsaints_frontend_api.Data.Repositories;
 
-public class SkillRepository: Repository<Skill>, ISkillRepository
+public class SkillRepository : Repository<Skill>, ISkillRepository
 {
     public SkillRepository(AppDbContext db) : base(db) { }
 }

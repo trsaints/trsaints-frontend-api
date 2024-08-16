@@ -6,36 +6,47 @@ using trsaints_frontend_api.Constants;
 
 namespace trsaints_frontend_api.Authorization.Middleware;
 
-public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public class
+    ApiKeyAuthenticationHandler : AuthenticationHandler<
+    AuthenticationSchemeOptions>
 {
     private readonly string _apiKeyHeaderName;
     private readonly string _apiKey;
-    
+
     public ApiKeyAuthenticationHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
         ISystemClock clock,
         IConfiguration configuration)
-        : base(options, logger, encoder, clock)
+        : base(options,
+               logger,
+               encoder,
+               clock)
     {
         _apiKeyHeaderName = ApiKeyAccessConstants.ApiKeyHeaderName;
-        _apiKey = configuration.GetValue<string>(ApiKeyAccessConstants.ApiKeyName);
+        _apiKey =
+            configuration.GetValue<string>(
+                ApiKeyAccessConstants.ApiKeyName);
     }
 
-    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+    protected override async Task<AuthenticateResult>
+        HandleAuthenticateAsync()
     {
-        if (!Request.Headers.TryGetValue(_apiKeyHeaderName, out var apiKeyHeaderValues))
+        if (!Request.Headers.TryGetValue(_apiKeyHeaderName,
+                                         out var apiKeyHeaderValues))
             return AuthenticateResult.NoResult();
 
         if (_apiKey == null)
             return AuthenticateResult.Fail("API Key was not provided.");
-        
-        var providedApiKey = System.Net.WebUtility.UrlDecode(apiKeyHeaderValues.FirstOrDefault());
+
+        var providedApiKey =
+            System.Net.WebUtility.UrlDecode(
+                apiKeyHeaderValues.FirstOrDefault());
 
         if (providedApiKey != _apiKey)
             return AuthenticateResult.Fail("API Key is invalid.");
-        
+
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, providedApiKey)

@@ -1,5 +1,6 @@
 namespace trsaints_frontend_api.Data.Entities;
-public class Project: Entity
+
+public class Project : Entity
 {
     public string Name { get; set; }
     public DateTime Date { get; set; }
@@ -7,7 +8,7 @@ public class Project: Entity
     public string RepoUrl { get; set; }
     public string DeployUrl { get; set; }
     public string Banner { get; set; }
-    
+
     public int StackId { get; set; }
     public TechStack TechStack { get; set; }
 }
