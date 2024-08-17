@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using trsaints_frontend_api.Authorization.Middleware;
 using trsaints_frontend_api.Constants;
 using trsaints_frontend_api.Data;
@@ -36,8 +37,7 @@ public static class Startup
                                  .GetValue<string>(
                                      AllowedDomainConstants
                                          .DomainCorsHostNames)
-                                 .Split(";",
-                                        StringSplitOptions
+                                 .Split(";", StringSplitOptions
                                             .RemoveEmptyEntries);
 
             options.AddPolicy(AllowedDomainConstants.DomainPolicy,
@@ -101,58 +101,29 @@ public static class Startup
     {
         var connectionString = GetFormattedConnectionString(builder);
 
-        builder.Services.AddDbContext<AppDbContext>(options =>
-                                                        options
-                                                            .UseNpgsql(
-                                                                connectionString,
-                                                                b =>
-                                                                    b.MigrationsAssembly(
-                                                                        typeof
-                                                                                (AppDbContext)
-                                                                            .Assembly
-                                                                            .FullName)));
+        builder.Services.AddDbContext<AppDbContext>(
+            options => options.UseNpgsql(connectionString,
+                                         b =>
+                                             b.MigrationsAssembly(
+                                                 typeof(AppDbContext)
+                                                     .Assembly
+                                                     .FullName)));
     }
 
     private static string? GetFormattedConnectionString(
         WebApplicationBuilder builder)
     {
-        var formattedConnectionString = builder
-                                        .Configuration
-                                        .GetConnectionString(
-                                            DatabaseAccessConstants
-                                                .ConnectionString)
-                                        ?.Replace(
-                                            "{Host}",
-                                            builder.Configuration
-                                                   .GetValue<string>(
-                                                       DatabaseAccessConstants
-                                                           .ConnectionHost))
-                                        .Replace(
-                                            "{Port}",
-                                            builder.Configuration
-                                                   .GetValue<string>(
-                                                       DatabaseAccessConstants
-                                                           .ConnectionPort))
-                                        .Replace(
-                                            "{Database}",
-                                            builder.Configuration
-                                                   .GetValue<string>(
-                                                       DatabaseAccessConstants
-                                                           .ConnectionDatabase))
-                                        .Replace(
-                                            "{User}",
-                                            builder.Configuration
-                                                   .GetValue<string>(
-                                                       DatabaseAccessConstants
-                                                           .ConnectionUsername))
-                                        .Replace(
-                                            "{Password}",
-                                            builder.Configuration
-                                                   .GetValue<string>(
-                                                       DatabaseAccessConstants
-                                                           .ConnectionPassword));
+        var stringBuilder =
+            new NpgsqlConnectionStringBuilder
+            {
+                Host = builder.Configuration.GetValue<string>(DatabaseAccessConstants.ConnectionHost),
+                Password = builder.Configuration.GetValue<string>(DatabaseAccessConstants.ConnectionPassword),
+                Database = builder.Configuration.GetValue<string>(DatabaseAccessConstants.ConnectionDatabase),
+                Port = 5432,
+                Username = builder.Configuration.GetValue<string>(DatabaseAccessConstants.ConnectionUsername)
+            };
 
-        return formattedConnectionString;
+        return stringBuilder.ConnectionString;
     }
 
 
@@ -220,13 +191,13 @@ public static class Startup
 
     public static void AddAuthorization(WebApplicationBuilder builder)
     {
-        builder.Services.AddAuthorizationBuilder()
+        builder.Services
+               .AddAuthorizationBuilder()
                .AddPolicy(ApiKeyDefaults.AuthenticationPolicy,
                           policy =>
                           {
                               policy.AddAuthenticationSchemes(
-                                  JwtBearerDefaults
-                                      .AuthenticationScheme,
+                                  JwtBearerDefaults.AuthenticationScheme,
                                   ApiKeyDefaults.AuthenticationScheme);
                               policy.RequireAuthenticatedUser();
                           });
@@ -260,13 +231,12 @@ public static class Startup
         var serviceProvider = scope.ServiceProvider;
         var context =
             serviceProvider.GetRequiredService<AppDbContext>();
+        
         context.Database.Migrate();
 
-        var email =
-            app.Configuration.GetValue<string>(
+        var email = app.Configuration.GetValue<string>(
                 DefaultUserConstants.UserName);
-        var password =
-            app.Configuration.GetValue<string>(
+        var password = app.Configuration.GetValue<string>(
                 DefaultUserConstants.UserPassword);
 
         SeedData.InitializeAsync(serviceProvider, email, password)
