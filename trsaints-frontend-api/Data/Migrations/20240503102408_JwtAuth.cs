@@ -242,7 +242,7 @@ namespace trsaints_frontend_api.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Projects_StackId",
                 table: "Projects",
-                column: "StackId");
+                column: "TechStackId");
         }
 
         /// <inheritdoc />

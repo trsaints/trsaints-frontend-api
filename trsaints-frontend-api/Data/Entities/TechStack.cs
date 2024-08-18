@@ -4,16 +4,19 @@ namespace trsaints_frontend_api.Data.Entities;
 
 public sealed class TechStack : Entity
 {
-    public string? Name { get; private set; }
-
     public TechStack(string name) { ValidateDomain(name); }
-
+    
     public TechStack(int id, string name)
     {
         DomainExceptionValidation.When(id < 0, "Invalid Id value");
         Id = id;
         ValidateDomain(name);
     }
+    
+    public string? Name { get; private set; }
+    public IEnumerable<Project> Projects { get; set; }
+    public IEnumerable<Skill> Skills { get; }
+    public IEnumerable<TechStackSkill> TechStackSkills { get; }
 
     public void Update(string name) { ValidateDomain(name); }
 
@@ -28,5 +31,4 @@ public sealed class TechStack : Entity
         Name = name;
     }
 
-    public IEnumerable<Project> Projects { get; set; }
 }

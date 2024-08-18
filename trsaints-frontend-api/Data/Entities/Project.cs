@@ -9,6 +9,6 @@ public class Project : Entity
     public string DeployUrl { get; set; }
     public string Banner { get; set; }
 
-    public int StackId { get; set; }
+    public int TechStackId { get; set; }
     public TechStack TechStack { get; set; }
 }

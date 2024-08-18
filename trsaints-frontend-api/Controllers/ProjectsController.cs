@@ -56,7 +56,7 @@ public class ProjectsController : DI_BaseController
                 "Invalid date format. Expected dd/MM/yyyy");
 
         var stackExists =
-            await _techStackService.StackExists(projectDto.StackId);
+            await _techStackService.StackExists(projectDto.TechStackId);
         if (!stackExists)
             return BadRequest("Tech stack not found");
 
@@ -188,7 +188,7 @@ public class ProjectsController : DI_BaseController
                 "Invalid date format. Expected dd/MM/yyyy");
 
         var stackExists =
-            await _techStackService.StackExists(projectDto.StackId);
+            await _techStackService.StackExists(projectDto.TechStackId);
         if (!stackExists)
             return BadRequest("Tech stack not found");
 

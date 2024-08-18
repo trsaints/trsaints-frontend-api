@@ -254,12 +254,12 @@ namespace trsaints_frontend_api.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<int>("StackId")
+                    b.Property<int>("TechStackId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StackId");
+                    b.HasIndex("TechStackId");
 
                     b.ToTable("Projects");
                 });
@@ -353,7 +353,7 @@ namespace trsaints_frontend_api.Migrations
                 {
                     b.HasOne("trsaints_frontend_api.Entities.TechStack", "TechStack")
                         .WithMany("Projects")
-                        .HasForeignKey("StackId")
+                        .HasForeignKey("TechStackId")
                         .IsRequired();
 
                     b.Navigation("TechStack");

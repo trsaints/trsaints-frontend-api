@@ -14,7 +14,7 @@ public class ProjectRepository : Repository<Project>,
     public async Task<IEnumerable<Project>>
         GetProjectsByStackAsync(int stackId)
     {
-        return await Db.Projects.Where(p => p.StackId == stackId)
+        return await Db.Projects.Where(p => p.TechStackId == stackId)
                        .ToListAsync();
     }
 

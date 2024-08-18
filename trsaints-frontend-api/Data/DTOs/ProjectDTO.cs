@@ -11,7 +11,7 @@ public class ProjectDTO
 
     [Required(ErrorMessage = "Name is required")]
     [MinLength(3)]
-    [MaxLength(100)]
+    [MaxLength(128)]
     [DisplayName("Name")]
     public string Name { get; set; }
 
@@ -24,30 +24,30 @@ public class ProjectDTO
 
     [Required(ErrorMessage = "Description is required")]
     [MinLength(3)]
-    [MaxLength(100)]
+    [MaxLength(128)]
     [DisplayName("Name")]
     public string Description { get; set; }
 
     [Required(ErrorMessage = "Name is required")]
     [MinLength(4)]
-    [MaxLength(200)]
+    [MaxLength(256)]
     [DisplayName("Repo URL")]
     public string RepoUrl { get; set; }
 
     [Required(ErrorMessage = "Name is required")]
     [MinLength(4)]
-    [MaxLength(200)]
+    [MaxLength(256)]
     [DisplayName("Deploy URL")]
     public string DeployUrl { get; set; }
 
     [Required(ErrorMessage = "Name is required")]
     [MinLength(4)]
-    [MaxLength(250)]
+    [MaxLength(256)]
     [DisplayName("Banner URL")]
     public string Banner { get; set; }
 
-    [DisplayName("Stacks")]
-    public int StackId { get; set; }
+    [DisplayName("Stack")]
+    public int TechStackId { get; set; }
 
     [JsonIgnore]
     public TechStack? TechStack { get; set; }

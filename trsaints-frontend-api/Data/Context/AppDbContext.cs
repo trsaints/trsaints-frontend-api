@@ -25,39 +25,46 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<Skill>().HasKey(s => s.Id);
         builder.Entity<Skill>()
                .Property(s => s.Name)
-               .HasMaxLength(100)
+               .HasMaxLength(128)
+               .IsRequired();
+        builder.Entity<Skill>()
+               .Property(s => s.SkillCategory)
                .IsRequired();
 
-        builder.Entity<TechStack>().HasKey(s => s.Id);
+        builder.Entity<TechStack>().HasKey(t => t.Id);
         builder.Entity<TechStack>()
-               .Property(s => s.Name)
-               .HasMaxLength(100)
+               .Property(t => t.Name)
+               .HasMaxLength(128)
                .IsRequired();
         builder.Entity<TechStack>()
-               .HasMany(s => s.Projects)
+               .HasMany(t => t.Projects)
                .WithOne(p => p.TechStack)
-               .HasForeignKey(p => p.StackId);
+               .HasForeignKey(p => p.TechStackId);
+        builder.Entity<TechStack>()
+               .HasMany<Skill>(s => s.Skills)
+               .WithMany(s => s.TechStacks)
+               .UsingEntity<TechStackSkill>("TechStacksToSkillsJoinTable");
 
         builder.Entity<Project>().HasKey(p => p.Id);
         builder.Entity<Project>()
                .Property(p => p.Name)
-               .HasMaxLength(100)
+               .HasMaxLength(128)
                .IsRequired();
         builder.Entity<Project>()
                .Property(p => p.Description)
-               .HasMaxLength(200)
+               .HasMaxLength(256)
                .IsRequired();
         builder.Entity<Project>()
                .Property(p => p.RepoUrl)
-               .HasMaxLength(200)
+               .HasMaxLength(256)
                .IsRequired();
         builder.Entity<Project>()
                .Property(p => p.DeployUrl)
-               .HasMaxLength(200)
+               .HasMaxLength(256)
                .IsRequired();
         builder.Entity<Project>()
                .Property(p => p.Banner)
-               .HasMaxLength(250)
+               .HasMaxLength(256)
                .IsRequired();
 
         foreach (var relationship in builder.Model.GetEntityTypes()
